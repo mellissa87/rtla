@@ -1,5 +1,9 @@
 package com.github.b0ch3nski.logback.model;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -89,6 +93,16 @@ public final class SimplifiedLog implements Serializable {
         private String loggerName;
         private String formattedMessage;
 
+        public SimplifiedLogBuilder fromILoggingEvent(ILoggingEvent event) {
+            Preconditions.checkNotNull(event, "ILoggingEvent cannot be null!");
+            timeStamp = event.getTimeStamp();
+            level = event.getLevel().toString();
+            threadName = event.getThreadName();
+            loggerName = event.getLoggerName();
+            formattedMessage = event.getFormattedMessage();
+            return this;
+        }
+
         public SimplifiedLogBuilder withTimeStamp(long timeStamp) {
             this.timeStamp = timeStamp;
             return this;
@@ -119,7 +133,16 @@ public final class SimplifiedLog implements Serializable {
             return this;
         }
 
+        private void validate(String toValidate, String varName) {
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(toValidate), varName + " cannot be null or empty!");
+        }
+
         public SimplifiedLog build() {
+            validate(hostName, "hostName");
+            validate(level, "level");
+            validate(threadName, "threadName");
+            validate(loggerName, "loggerName");
+            validate(formattedMessage, "formattedMessage");
             return new SimplifiedLog(this);
         }
     }

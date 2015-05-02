@@ -67,15 +67,11 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
     @Override
     protected void append(ILoggingEvent event) {
         SimplifiedLog log = new SimplifiedLogBuilder()
-                .withTimeStamp(event.getTimeStamp())
+                .fromILoggingEvent(event)
                 .withHostName(hostName)
-                .withLevel(event.getLevel().toString())
-                .withThreadName(event.getThreadName())
-                .withLoggerName(event.getLoggerName())
-                .withFormattedMessage(event.getFormattedMessage())
                 .build();
 
-        producer.send(new KeyedMessage<>(topic, log.getHostName(), log));
+        producer.send(new KeyedMessage<>(topic, hostName, log));
     }
 
     @Override

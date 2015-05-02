@@ -15,10 +15,21 @@ import java.util.*;
  * @author bochen
  */
 public final class KafkaUtils {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaUtils.class);
+    private static Properties commonProperties;
 
     private KafkaUtils() { }
+
+    private static Properties getCommonProperties() {
+        if (commonProperties == null) {
+            commonProperties = new Properties();
+            commonProperties.put("key.serializer.class", "kafka.serializer.StringEncoder");
+            commonProperties.put("serializer.class", SimplifiedLogSerializer.class.getName());
+            commonProperties.put("partitioner.class", HostnamePartitioner.class.getName());
+            commonProperties.put("compression.codec", "none");
+        }
+        return commonProperties;
+    }
 
     public static ConsumerConnector createConsumer(String zkConnection, String groupId, String consumerId) {
         Properties consumerProperties = new Properties();
@@ -40,13 +51,10 @@ public final class KafkaUtils {
 
     public static Producer<String, SimplifiedLog> createProducer(String brokers, KafkaProducerType type, boolean acks) {
         Properties producerProperties = new Properties();
+        producerProperties.putAll(getCommonProperties());
         producerProperties.put("metadata.broker.list", brokers);
-        producerProperties.put("key.serializer.class", "kafka.serializer.StringEncoder");
-        producerProperties.put("serializer.class", SimplifiedLogSerializer.class.getName());
-        producerProperties.put("partitioner.class", HostnamePartitioner.class.getName());
         producerProperties.put("producer.type", type.typeAsString);
         producerProperties.put("request.required.acks", String.valueOf(Boolean.compare(acks, false)));
-        producerProperties.put("compression.codec", "none");
         LOGGER.debug("Creating producer with properties: {}", producerProperties);
         return new Producer<>(new ProducerConfig(producerProperties));
     }

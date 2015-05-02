@@ -61,13 +61,13 @@ public final class KafkaTestingHelper {
 
         kafkaServer = new KafkaServerStartable(new KafkaConfig(serverProperties));
         kafkaServer.startup();
-
         AdminUtils.createTopic(zkClient, topicName, topicPartitions, 1, new Properties());
-
-        producer = KafkaUtils.createProducer("localhost:" + kafkaPort, KafkaProducerType.ASYNC, false);
     }
 
     public void send(SimplifiedLog message, String topicName) {
+        if (producer == null) {
+            producer = KafkaUtils.createProducer("localhost:" + kafkaPort, KafkaProducerType.ASYNC, false);
+        }
         producer.send(new KeyedMessage<>(topicName, message.getHostName(), message));
         LOGGER.debug("Sent message: {}", message);
     }
@@ -79,8 +79,6 @@ public final class KafkaTestingHelper {
     }
 
     public Callable<Boolean> messagesArrived(final Collection<SimplifiedLog> expected) {
-        LOGGER.debug("Expected messages: {}", expected);
-
         final ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
         final ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
         final List<SimplifiedLog> received = new ArrayList<>();
