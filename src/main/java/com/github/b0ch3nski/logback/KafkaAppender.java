@@ -75,7 +75,7 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
                 .withFormattedMessage(event.getFormattedMessage())
                 .build();
 
-        producer.send(new KeyedMessage<String, SimplifiedLog>(topic, log));
+        producer.send(new KeyedMessage<>(topic, log.getHostName(), log));
     }
 
     @Override

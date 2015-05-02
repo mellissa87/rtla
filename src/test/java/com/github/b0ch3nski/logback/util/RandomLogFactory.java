@@ -5,7 +5,7 @@ import com.github.b0ch3nski.logback.model.SimplifiedLog.SimplifiedLogBuilder;
 import com.google.common.net.InetAddresses;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author bochen
@@ -24,5 +24,14 @@ public final class RandomLogFactory {
                 .withLoggerName(RandomStringUtils.randomAlphanumeric(15))
                 .withFormattedMessage(RandomStringUtils.randomAlphanumeric(100))
                 .build();
+    }
+
+    public static Collection<SimplifiedLog> create(int amount) {
+        Collection<SimplifiedLog> toReturn = new ArrayList<>();
+
+        for (int i = 0; i < amount; i++) {
+            toReturn.add(create());
+        }
+        return toReturn;
     }
 }

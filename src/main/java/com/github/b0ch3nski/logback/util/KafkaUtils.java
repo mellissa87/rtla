@@ -1,7 +1,6 @@
 package com.github.b0ch3nski.logback.util;
 
-import com.github.b0ch3nski.logback.model.SimplifiedLog;
-import com.github.b0ch3nski.logback.model.SimplifiedLogSerializer;
+import com.github.b0ch3nski.logback.model.*;
 import kafka.consumer.*;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.javaapi.producer.Producer;
@@ -44,6 +43,7 @@ public final class KafkaUtils {
         producerProperties.put("metadata.broker.list", brokers);
         producerProperties.put("key.serializer.class", "kafka.serializer.StringEncoder");
         producerProperties.put("serializer.class", SimplifiedLogSerializer.class.getName());
+        producerProperties.put("partitioner.class", HostnamePartitioner.class.getName());
         producerProperties.put("producer.type", type.typeAsString);
         producerProperties.put("request.required.acks", String.valueOf(Boolean.compare(acks, false)));
         producerProperties.put("compression.codec", "none");

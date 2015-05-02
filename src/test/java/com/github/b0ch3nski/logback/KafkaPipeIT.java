@@ -22,6 +22,8 @@ public class KafkaPipeIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaPipeIT.class);
     private static final String TOPIC = "test";
     private static final KafkaTestingHelper KAFKA = new KafkaTestingHelper(2181, 8888, TOPIC, 1);
+    private static final int MSG_AMOUNT = 5;
+    private static final int TIMEOUT = MSG_AMOUNT * 5;
 
     @Before
     public void setUp() throws Exception {
@@ -36,11 +38,11 @@ public class KafkaPipeIT {
 
     @Test
     public void shouldSendAndReceiveLog() {
-        Collection<SimplifiedLog> expected = Lists.newArrayList(RandomLogFactory.create(), RandomLogFactory.create());
+        Collection<SimplifiedLog> expected = Lists.newArrayList(RandomLogFactory.create(MSG_AMOUNT));
         KAFKA.send(expected, TOPIC);
 
         await()
-                .atMost(15, TimeUnit.SECONDS)
+                .atMost(TIMEOUT, TimeUnit.SECONDS)
                 .pollDelay(1, TimeUnit.SECONDS)
                 .pollInterval(1, TimeUnit.SECONDS)
                 .until(KAFKA.messagesArrived(expected));
@@ -51,11 +53,10 @@ public class KafkaPipeIT {
     @Test
     @Deprecated
     public void shouldSendAndReceiveLogOld() throws TimeoutException {
-        Collection<SimplifiedLog> expected = Lists.newArrayList(RandomLogFactory.create(), RandomLogFactory.create());
+        Collection<SimplifiedLog> expected = Lists.newArrayList(RandomLogFactory.create(MSG_AMOUNT));
         KAFKA.send(expected, TOPIC);
 
-        Collection<SimplifiedLog> received = KAFKA.receive(2, 5);
-        LOGGER.debug("Received logs: {}", received);
+        Collection<SimplifiedLog> received = KAFKA.receive(MSG_AMOUNT, TIMEOUT);
 
         assertThat(received.containsAll(expected), is(true));
     }

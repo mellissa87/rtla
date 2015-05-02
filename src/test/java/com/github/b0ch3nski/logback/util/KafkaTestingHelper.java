@@ -6,6 +6,7 @@ import kafka.admin.AdminUtils;
 import kafka.consumer.ConsumerIterator;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.javaapi.producer.Producer;
+import kafka.message.MessageAndMetadata;
 import kafka.producer.KeyedMessage;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
@@ -33,6 +34,7 @@ public final class KafkaTestingHelper {
     private TestingServer zkServer;
     private ZkClient zkClient;
     private KafkaServerStartable kafkaServer;
+    private Producer<String, SimplifiedLog> producer;
 
     public KafkaTestingHelper(int zkPort, int kafkaPort, String topicName, int topicPartitions) {
         this.zkPort = zkPort;
@@ -59,12 +61,14 @@ public final class KafkaTestingHelper {
 
         kafkaServer = new KafkaServerStartable(new KafkaConfig(serverProperties));
         kafkaServer.startup();
+
         AdminUtils.createTopic(zkClient, topicName, topicPartitions, 1, new Properties());
+
+        producer = KafkaUtils.createProducer("localhost:" + kafkaPort, KafkaProducerType.ASYNC, false);
     }
 
     public void send(SimplifiedLog message, String topicName) {
-        Producer<String, SimplifiedLog> producer = KafkaUtils.createProducer("localhost:" + kafkaPort, KafkaProducerType.ASYNC, false);
-        producer.send(new KeyedMessage<String, SimplifiedLog>(topicName, message));
+        producer.send(new KeyedMessage<>(topicName, message.getHostName(), message));
         LOGGER.debug("Sent message: {}", message);
     }
 
@@ -85,9 +89,9 @@ public final class KafkaTestingHelper {
             @Override
             public Boolean call() throws Exception {
                 if (consumerIterator.hasNext()) {
-                    SimplifiedLog message = consumerIterator.next().message();
-                    received.add(message);
-                    LOGGER.debug("Received message: {}", message);
+                    MessageAndMetadata data = consumerIterator.next();
+                    received.add((SimplifiedLog) data.message());
+                    LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
                 }
                 consumer.shutdown();
                 return received.containsAll(expected);
@@ -109,9 +113,9 @@ public final class KafkaTestingHelper {
                 List<SimplifiedLog> received = new ArrayList<>();
 
                 while ((received.size() != messageCount) && consumerIterator.hasNext()) {
-                    SimplifiedLog message = consumerIterator.next().message();
-                    received.add(message);
-                    LOGGER.debug("Received message: {}", message);
+                    MessageAndMetadata data = consumerIterator.next();
+                    received.add((SimplifiedLog) data.message());
+                    LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
                 }
                 return received;
             }
