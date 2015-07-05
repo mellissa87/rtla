@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.b0ch3nski</groupId>
-    <artifactId>logback-kafka-appender</artifactId>
+    <artifactId>rtla-logback</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>logback-kafka-appender</name>
+    <name>rtla-logback</name>
     <description>Logback appender that writes logs directly to Apache Kafka</description>
     <url>https://github.com/b0ch3nski/logback-kafka-appender</url>
 
