@@ -11,14 +11,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>rtla-logback</artifactId>
+    <artifactId>rtla-storm</artifactId>
     <packaging>jar</packaging>
 
-    <name>RTLA-Logback</name>
-    <description>Logback appender that writes logs directly to Apache Kafka</description>
+    <name>RTLA-Storm</name>
+    <description>Apache Storm part of RTLA system</description>
 
     <properties>
-        <main.class>com.github.b0ch3nski.logback.util.ConsoleConsumer</main.class>
+        <main.class>TODO_FOR_FUTURE</main.class>
     </properties>
 
     <dependencies>
@@ -30,28 +30,20 @@
 
         <dependency>
             <groupId>com.github.b0ch3nski</groupId>
-            <artifactId>rtla-kafka</artifactId>
+            <artifactId>rtla-cassandra</artifactId>
             <version>${rtla.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-test</artifactId>
-            <version>${curator.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>test</scope>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>storm-core</artifactId>
+            <version>${storm.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.jayway.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
-            <scope>test</scope>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>storm-kafka</artifactId>
+            <version>${storm.version}</version>
         </dependency>
     </dependencies>
 
