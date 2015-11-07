@@ -21,14 +21,11 @@ public final class ConsoleConsumer {
         final ConsumerConnector consumer = KafkaUtils.createConsumer(args[0], "test_group", "1");
         ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, args[1]);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LOGGER.info("Shutting down consumer...");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("Shutting down consumer...");
 
-                if (consumer != null) {
-                    consumer.shutdown();
-                }
+            if (consumer != null) {
+                consumer.shutdown();
             }
         }, "shutdownHook"));
 
