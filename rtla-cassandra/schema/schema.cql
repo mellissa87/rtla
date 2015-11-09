@@ -1,17 +1,17 @@
-CREATE KEYSPACE rtla WITH replication = {
+CREATE KEYSPACE IF NOT EXISTS rtla WITH replication = {
   'class': 'NetworkTopologyStrategy',
   'datacenter1': '1'
 };
 
 USE rtla;
 
-CREATE TABLE errorlogs (
+CREATE TABLE IF NOT EXISTS errorlogs (
   host text,
   time timestamp,
-  thread text,
   logger text,
+  thread text,
   message text,
-  PRIMARY KEY ((host), time, logger)
+  PRIMARY KEY ((host), time, logger, thread)
 ) WITH COMPACT STORAGE
   AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
@@ -20,13 +20,13 @@ CREATE TABLE errorlogs (
   AND dclocal_read_repair_chance = 0.0
   AND CLUSTERING ORDER BY (time DESC);
 
-CREATE TABLE warnlogs (
+CREATE TABLE IF NOT EXISTS warnlogs (
   host text,
   time timestamp,
-  thread text,
   logger text,
+  thread text,
   message text,
-  PRIMARY KEY ((host), time, logger)
+  PRIMARY KEY ((host), time, logger, thread)
 ) WITH COMPACT STORAGE
   AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
@@ -35,13 +35,13 @@ CREATE TABLE warnlogs (
   AND dclocal_read_repair_chance = 0.0
   AND CLUSTERING ORDER BY (time DESC);
 
-CREATE TABLE infologs (
+CREATE TABLE IF NOT EXISTS infologs (
   host text,
   time timestamp,
-  thread text,
   logger text,
+  thread text,
   message text,
-  PRIMARY KEY ((host), time, logger)
+  PRIMARY KEY ((host), time, logger, thread)
 ) WITH COMPACT STORAGE
   AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
@@ -50,13 +50,13 @@ CREATE TABLE infologs (
   AND dclocal_read_repair_chance = 0.0
   AND CLUSTERING ORDER BY (time DESC);
 
-CREATE TABLE debuglogs (
+CREATE TABLE IF NOT EXISTS debuglogs (
   host text,
   time timestamp,
-  thread text,
   logger text,
+  thread text,
   message text,
-  PRIMARY KEY ((host), time, logger)
+  PRIMARY KEY ((host), time, logger, thread)
 ) WITH COMPACT STORAGE
   AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
@@ -65,13 +65,13 @@ CREATE TABLE debuglogs (
   AND dclocal_read_repair_chance = 0.0
   AND CLUSTERING ORDER BY (time DESC);
 
-CREATE TABLE tracelogs (
+CREATE TABLE IF NOT EXISTS tracelogs (
   host text,
   time timestamp,
-  thread text,
   logger text,
+  thread text,
   message text,
-  PRIMARY KEY ((host), time, logger)
+  PRIMARY KEY ((host), time, logger, thread)
 ) WITH COMPACT STORAGE
   AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
