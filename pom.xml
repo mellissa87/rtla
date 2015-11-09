@@ -198,5 +198,6 @@
         <module>rtla-logback</module>
         <module>rtla-cassandra</module>
         <module>rtla-storm</module>
+        <module>rtla-simulator</module>
     </modules>
 </project>

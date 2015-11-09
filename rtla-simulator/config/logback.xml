@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="15 seconds">
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>[%d{dd-MM-yyyy HH:mm:ss}] [%level] [%thread] [%logger] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="kafkaAppender" class="com.github.b0ch3nski.rtla.logback.KafkaAppender">
+        <hostName>test_host_1</hostName>
+        <brokers>localhost:9092</brokers>
+        <topic>test</topic>
+    </appender>
+
+    <root level="TRACE">
+        <appender-ref ref="consoleAppender" />
+        <appender-ref ref="kafkaAppender" />
+    </root>
+
+</configuration>
