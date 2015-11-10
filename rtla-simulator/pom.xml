@@ -18,7 +18,7 @@
     <description>Logging simulator for RTLA system</description>
 
     <properties>
-        <main.class>TODO_FOR_FUTURE</main.class>
+        <main.class>com.github.b0ch3nski.rtla.simulator.Starter</main.class>
     </properties>
 
     <dependencies>
