@@ -21,7 +21,7 @@ import static org.junit.Assert.assertThat;
 public class KafkaPipeIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaPipeIT.class);
     private static final String TOPIC = "test";
-    private static final KafkaTestingHelper KAFKA = new KafkaTestingHelper(2181, 8888, TOPIC, 1);
+    private static final KafkaTestingHelper KAFKA = new KafkaTestingHelper(12181, 18888, TOPIC, 1);
     private static final int MSG_AMOUNT = 5;
     private static final int TIMEOUT = MSG_AMOUNT * 5;
 
