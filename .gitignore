@@ -1,3 +1,4 @@
+local-env/rtla-simulation-data-container/simulation-data/
 target/
 .idea/
 pom.xml.tag
