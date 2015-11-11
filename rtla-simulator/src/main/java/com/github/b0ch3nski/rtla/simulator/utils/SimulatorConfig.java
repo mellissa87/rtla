@@ -6,7 +6,7 @@ import com.google.common.base.Objects;
 /**
  * @author bochen
  */
-public class SimulatorConfig {
+public final class SimulatorConfig {
     private String inputDir = "";
     private int delay = 1000;
     private int loops = 0;
