@@ -23,13 +23,11 @@ public final class Starter {
 
         SimulatorConfig config = (SimulatorConfig) ConfigFactory.fromYaml(new FileReader(args[0]), SimulatorConfig.class);
         List<Path> allFiles = FileHandler.listAllFiles(config.getInputDir());
-//        LOGGER.debug("Config read = {} | Files read = {}", config, allFiles.size());
 
         LogReader reader = new LogReader(LOGGER, config.getDelay());
+        // TODO: loop setting from config is not taken into account (we are always looping only once through all files)
         for (Path singleFile : allFiles) {
-//            LOGGER.debug("Reading file = {}", singleFile);
             Files.lines(singleFile).forEach(reader:: handleSingleLine);
-//            LOGGER.debug("End of file = {}", singleFile);
         }
     }
 }

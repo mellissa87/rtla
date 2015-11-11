@@ -73,10 +73,6 @@
         <profile>
             <id>shade</id>
 
-            <properties>
-                <skipTests>true</skipTests>
-            </properties>
-
             <build>
                 <plugins>
                     <plugin>
@@ -84,7 +80,7 @@
                         <version>${shade.plugin.version}</version>
                         <configuration>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>shaded</shadedClassifierName>
+                            <shadedClassifierName>${shaded.jar.postfix}</shadedClassifierName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

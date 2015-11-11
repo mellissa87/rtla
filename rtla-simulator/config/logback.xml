@@ -9,10 +9,15 @@
     </appender>
 
     <appender name="kafkaAppender" class="com.github.b0ch3nski.rtla.logback.KafkaAppender">
-        <hostName>test_host_1</hostName>
-        <brokers>localhost:9092</brokers>
-        <topic>test</topic>
+        <hostName>testhost</hostName>
+        <brokers>kafka:9092</brokers>
+        <topic>logs</topic>
     </appender>
+
+    <logger name="kafka" level="OFF"/>
+    <logger name="com.github.b0ch3nski.rtla.logback" level="OFF"/>
+    <logger name="com.github.b0ch3nski.rtla.kafka" level="OFF"/>
+    <logger name="com.github.b0ch3nski.rtla.common" level="OFF"/>
 
     <root level="TRACE">
         <appender-ref ref="consoleAppender" />

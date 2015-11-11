@@ -46,6 +46,7 @@
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
+        <shaded.jar.postfix>shaded</shaded.jar.postfix>
 
         <skipTests>false</skipTests>
         <skipUTs>${skipTests}</skipUTs>
@@ -56,6 +57,7 @@
         <surefire.plugin.version>2.19</surefire.plugin.version>
         <failsafe.plugin.version>2.19</failsafe.plugin.version>
         <shade.plugin.version>2.4.2</shade.plugin.version>
+        <docker.plugin.version>0.3.5</docker.plugin.version>
 
         <!-- core frameworks -->
         <cassandra.version>2.1.8</cassandra.version>
@@ -69,7 +71,7 @@
         <yaml.version>1.16</yaml.version>
         <metrics.version>3.1.2</metrics.version>
         <kryo.version>3.0.3</kryo.version>
-        <curator.version>2.9.0</curator.version>
+        <curator.version>3.0.0</curator.version>
 
         <!-- logging stuff -->
         <slf4j.version>1.7.12</slf4j.version>
