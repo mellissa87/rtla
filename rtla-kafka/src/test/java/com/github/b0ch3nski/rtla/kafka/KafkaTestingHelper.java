@@ -45,7 +45,7 @@ public final class KafkaTestingHelper {
     }
 
     public void start() throws Exception {
-        zkServer = new TestingServer(zkPort, true);
+        zkServer = new TestingServer(zkPort);
         zkClient = new ZkClient(zkServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
 
         File logs = Files.createTempDirectory("kafka_tmp").toFile();
@@ -74,50 +74,42 @@ public final class KafkaTestingHelper {
     }
 
     public void send(Collection<SimplifiedLog> messages, String topicName) {
-        for (SimplifiedLog message : messages) {
-            send(message, topicName);
-        }
+        messages.forEach(message -> send(message, topicName));
     }
 
-    public Callable<Boolean> messagesArrived(final Collection<SimplifiedLog> expected) {
-        final ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
-        final ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
-        final List<SimplifiedLog> received = new ArrayList<>();
+    public Callable<Boolean> messagesArrived(Collection<SimplifiedLog> expected) {
+        ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
+        ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
+        List<SimplifiedLog> received = new ArrayList<>();
 
-        return new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                if (consumerIterator.hasNext()) {
-                    MessageAndMetadata data = consumerIterator.next();
-                    received.add((SimplifiedLog) data.message());
-                    LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
-                }
-                consumer.shutdown();
-                return received.containsAll(expected);
+        return () -> {
+            if (consumerIterator.hasNext()) {
+                MessageAndMetadata data = consumerIterator.next();
+                received.add((SimplifiedLog) data.message());
+                LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
             }
+            consumer.shutdown();
+            return received.containsAll(expected);
         };
     }
 
     /*
     // Not used anymore... Kept for a reference.
     @Deprecated
-    public Collection<SimplifiedLog> receive(final int messageCount, int messagesTimeout) throws TimeoutException {
+    public Collection<SimplifiedLog> receive(int messageCount, int messagesTimeout) throws TimeoutException {
         ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
-        final ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
+        ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
 
         ExecutorService singleThread = Executors.newSingleThreadExecutor();
-        Future<List<SimplifiedLog>> submit = singleThread.submit(new Callable<List<SimplifiedLog>>() {
-            @Override
-            public List<SimplifiedLog> call() {
-                List<SimplifiedLog> received = new ArrayList<>();
+        Future<List<SimplifiedLog>> submit = singleThread.submit(() -> {
+            List<SimplifiedLog> received = new ArrayList<>();
 
-                while ((received.size() != messageCount) && consumerIterator.hasNext()) {
-                    MessageAndMetadata data = consumerIterator.next();
-                    received.add((SimplifiedLog) data.message());
-                    LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
-                }
-                return received;
+            while ((received.size() != messageCount) && consumerIterator.hasNext()) {
+                MessageAndMetadata data = consumerIterator.next();
+                received.add((SimplifiedLog) data.message());
+                LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
             }
+            return received;
         });
 
         try {
