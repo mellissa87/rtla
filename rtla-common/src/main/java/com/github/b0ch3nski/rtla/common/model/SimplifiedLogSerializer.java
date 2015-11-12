@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * @author bochen
@@ -21,7 +22,12 @@ public final class SimplifiedLogSerializer {
     };
 
     public byte[] toBytes(SimplifiedLog toSerialize) {
-        Output output = new Output(10000, 10000);   // TODO: Performance tests: find out best values
+        return toBytes(toSerialize, 1000, -1);
+    }
+
+    @VisibleForTesting
+    byte[] toBytes(SimplifiedLog toSerialize, int kryoBufferSize, int kryoMaxBufferSize) {
+        Output output = new Output(kryoBufferSize, kryoMaxBufferSize);
         KRYO.get().writeObject(output, toSerialize);
         output.close();
         return output.toBytes();

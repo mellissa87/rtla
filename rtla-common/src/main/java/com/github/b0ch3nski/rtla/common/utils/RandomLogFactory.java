@@ -26,7 +26,7 @@ public final class RandomLogFactory {
                 .withLevel(RandomStringUtils.randomAlphanumeric(5))
                 .withThreadName(RandomStringUtils.randomAlphanumeric(randomIntBetween(10, 20)))
                 .withLoggerName(RandomStringUtils.randomAlphanumeric(randomIntBetween(10, 20)))
-                .withFormattedMessage(RandomStringUtils.randomAlphanumeric(randomIntBetween(20, 100)))
+                .withFormattedMessage(RandomStringUtils.randomAlphanumeric(randomIntBetween(50, 150)))
                 .build();
     }
 

@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.DatatypeConverter;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -21,7 +23,7 @@ public class SimplifiedLogSerializerTest {
         LOGGER.debug("Original: {}", toSerialize);
 
         byte[] serialized = SERIALIZER.toBytes(toSerialize);
-        LOGGER.debug("Serialized: {}", serialized);
+        LOGGER.debug("Serialized: {}", DatatypeConverter.printHexBinary(serialized));
 
         SimplifiedLog deserialized = SERIALIZER.fromBytes(serialized);
         LOGGER.debug("Deserialized: {}", deserialized);
