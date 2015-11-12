@@ -2,6 +2,10 @@ package com.github.b0ch3nski.rtla.simulator.utils;
 
 import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,10 +15,12 @@ import java.util.regex.Pattern;
 public final class LogReader {
     private static final Pattern PATTERN = Pattern.compile("(.+?)  (\\d+?:\\d+?:\\d+?) (.+)");
     private final Logger logger;
+    private final List<Path> allFiles;
     private final int delay;
 
-    public LogReader(Logger logger, int delay) {
+    public LogReader(Logger logger, String inputDir, int delay) {
         this.logger = logger;
+        allFiles = FileHandler.listAllFiles(inputDir);
         this.delay = delay;
     }
 
@@ -31,7 +37,7 @@ public final class LogReader {
         }
     }
 
-    public void handleSingleLine(String line) {
+    private void handleSingleLine(String line) {
         Matcher matcher = PATTERN.matcher(line);
         while (matcher.find()) {
             getLoggerLevel(matcher);
@@ -39,6 +45,16 @@ public final class LogReader {
         try {
             Thread.sleep(delay);
         } catch (InterruptedException ignored) {
+        }
+    }
+
+    private void handleAllLines(Path singleFile) throws IOException {
+        Files.lines(singleFile).forEach(this:: handleSingleLine);
+    }
+
+    public void iterateOverAllFiles() throws IOException {
+        for (Path singleFile : allFiles) {
+            handleAllLines(singleFile);
         }
     }
 }

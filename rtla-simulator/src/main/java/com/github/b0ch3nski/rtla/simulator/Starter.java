@@ -1,16 +1,14 @@
 package com.github.b0ch3nski.rtla.simulator;
 
 import com.github.b0ch3nski.rtla.common.utils.ConfigFactory;
-import com.github.b0ch3nski.rtla.simulator.utils.*;
+import com.github.b0ch3nski.rtla.simulator.utils.LogReader;
+import com.github.b0ch3nski.rtla.simulator.utils.SimulatorConfig;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author bochen
@@ -22,12 +20,11 @@ public final class Starter {
         Preconditions.checkArgument(args.length == 1, "Usage: java -jar rtla-simulator-1.0.0-shaded.jar <config file path>");
 
         SimulatorConfig config = (SimulatorConfig) ConfigFactory.fromYaml(new FileReader(args[0]), SimulatorConfig.class);
-        List<Path> allFiles = FileHandler.listAllFiles(config.getInputDir());
+        int loops = config.getLoops();
 
-        LogReader reader = new LogReader(LOGGER, config.getDelay());
-        // TODO: loop setting from config is not taken into account (we are always looping only once through all files)
-        for (Path singleFile : allFiles) {
-            Files.lines(singleFile).forEach(reader:: handleSingleLine);
+        LogReader reader = new LogReader(LOGGER, config.getInputDir(), config.getDelay());
+        for (int i = 0; (loops == 0) || (i < loops); i++) {
+            reader.iterateOverAllFiles();
         }
     }
 }

@@ -18,15 +18,12 @@ public final class ConsoleConsumer {
         Preconditions.checkArgument(args.length == 2, "Usage: java -jar logback-kafka-appender-1.0-shaded.jar zkHost:zkPort topicName");
 
         LOGGER.info("Starting consumer...");
-        final ConsumerConnector consumer = KafkaUtils.createConsumer(args[0], "test_group", "1");
+        ConsumerConnector consumer = KafkaUtils.createConsumer(args[0], "test_group", "1");
         ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, args[1]);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down consumer...");
-
-            if (consumer != null) {
-                consumer.shutdown();
-            }
+            if (consumer != null) consumer.shutdown();
         }, "shutdownHook"));
 
         LOGGER.info("OK! Waiting for messages...");

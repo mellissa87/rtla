@@ -30,8 +30,8 @@ public final class RandomLogFactory {
                 .build();
     }
 
-    public static Collection<SimplifiedLog> create(int amount) {
-        Collection<SimplifiedLog> toReturn = new ArrayList<>();
+    public static List<SimplifiedLog> create(int amount) {
+        List<SimplifiedLog> toReturn = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
             toReturn.add(create());
