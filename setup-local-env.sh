@@ -12,16 +12,20 @@ fi
 
 # create kafka topic
 kafka-topics.sh --zookeeper ${ZK_IP}:2181 --create --replication-factor 1 --partition 4 --topic logs
-sleep 15
+sleep 10
 
 # import cassandra schema
 cqlsh ${CASS_IP} 9042 -f rtla-cassandra/schema/schema.cql
-sleep 30
+sleep 20
 
 # prepare data for simulation
 docker build -t="bochen/rtla-simulation-data-container" local-env/rtla-simulation-data-container
 docker run --name rtla-simulation-data-container bochen/rtla-simulation-data-container /bin/true
-sleep 15
+sleep 10
 
-# start simulator
-docker run --name rtla-simulator-1 --volumes-from rtla-simulation-data-container --link kafka -e LOGDIR_NUM=1 -e DELAY=500 -e LOOPS=1 -d bochen/rtla-simulator:1.0.0
+# start 4 simulators
+for i in {1..4}
+do
+    docker run --name rtla-simulator-${i} --volumes-from rtla-simulation-data-container --link kafka -e LOGDIR_NUM=${i} -e DELAY=500 -e LOOPS=1 -d bochen/rtla-simulator:1.0.0
+    sleep 10
+done
