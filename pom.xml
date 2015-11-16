@@ -62,7 +62,7 @@
         <!-- core frameworks -->
         <cassandra.version>2.1.8</cassandra.version>
         <kafka.version>0.8.2.2</kafka.version>
-        <storm.version>0.9.5</storm.version>
+        <storm.version>0.9.6</storm.version>
 
         <!-- core libs -->
         <guava.version>18.0</guava.version>
@@ -71,7 +71,7 @@
         <yaml.version>1.16</yaml.version>
         <metrics.version>3.1.2</metrics.version>
         <kryo.version>3.0.3</kryo.version>
-        <curator.version>3.0.0</curator.version>
+        <curator.version>2.9.1</curator.version>
 
         <!-- logging stuff -->
         <slf4j.version>1.7.12</slf4j.version>
