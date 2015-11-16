@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# build packages
+mvn clean install -P shade -D dockerimg
+
+# build docker images
+../dockerfiles/build.sh
+sleep 10
+
+# start docker cluster
+docker-compose -f ../dockerfiles/docker-compose.yml -p rtla-cluster up --force-recreate -d
+sleep 300
+docker-compose -f ../dockerfiles/docker-compose.yml -p rtla-cluster scale storm-supervisor=2
+sleep 20
+
+# update opscenter
+../dockerfiles/update-opscenter.sh
+sleep 10
+
 # do we have a local docker?
 if [ -z ${DOCKER_HOST+x} ]; then
     export CASS_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' cassandra)
