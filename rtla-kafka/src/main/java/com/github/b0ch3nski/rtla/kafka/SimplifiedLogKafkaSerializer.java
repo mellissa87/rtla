@@ -14,14 +14,10 @@ import org.slf4j.LoggerFactory;
 public final class SimplifiedLogKafkaSerializer implements Encoder<SimplifiedLog>, Decoder<SimplifiedLog> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimplifiedLogKafkaSerializer.class);
-
     private static final SimplifiedLogSerializer SERIALIZER = new SimplifiedLogSerializer();
 
-
     public SimplifiedLogKafkaSerializer(VerifiableProperties properties) {
-        if (properties != null) {
-            LOGGER.debug("Creating serializer with properties: {}", properties);
-        }
+        if (properties != null) LOGGER.trace("Creating serializer with properties: {}", properties);
     }
 
     @Override

@@ -76,9 +76,7 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     public void stop() {
-        if (producer != null) {
-            producer.close();
-        }
+        if (producer != null) producer.close();
         super.stop();
     }
 }

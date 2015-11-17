@@ -2,11 +2,12 @@ package com.github.b0ch3nski.rtla.simulator.utils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public final class FileHandler {
 
     public static List<Path> listAllFiles(String path) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(path), "Path cannot be null or empty!");
-        List<Path> toReturn = new ArrayList<>();
+        Builder<Path> builder = ImmutableList.builder();
         File[] files = new File(path).listFiles();
 
         if (!isArrayNullOrEmpty(files)) {
@@ -32,8 +33,8 @@ public final class FileHandler {
                     .stream()
                     .sorted()
                     .filter(FileHandler:: isFileValid)
-                    .forEach(file -> toReturn.add(file.toPath()));
+                    .forEach(file -> builder.add(file.toPath()));
         }
-        return toReturn;
+        return builder.build();
     }
 }

@@ -2,14 +2,13 @@ package com.github.b0ch3nski.rtla.kafka;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.utils.RandomLogFactory;
-import com.google.common.collect.Lists;
 import com.jayway.awaitility.Awaitility;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
@@ -38,7 +37,7 @@ public class KafkaPipeIT {
 
     @Test
     public void shouldSendAndReceiveLog() {
-        Collection<SimplifiedLog> expected = Lists.newArrayList(RandomLogFactory.create(MSG_AMOUNT));
+        List<SimplifiedLog> expected = RandomLogFactory.create(MSG_AMOUNT);
         KAFKA.send(expected, TOPIC);
 
         Awaitility.await()
@@ -53,7 +52,7 @@ public class KafkaPipeIT {
     @Test
     @Deprecated
     public void shouldSendAndReceiveLogOld() throws TimeoutException {
-        Collection<SimplifiedLog> expected = Lists.newArrayList(RandomLogFactory.create(MSG_AMOUNT));
+        List<SimplifiedLog> expected = RandomLogFactory.create(MSG_AMOUNT);
         KAFKA.send(expected, TOPIC);
 
         Collection<SimplifiedLog> received = KAFKA.receive(MSG_AMOUNT, TIMEOUT);

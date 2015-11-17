@@ -4,7 +4,6 @@ import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.google.common.base.Preconditions;
 import kafka.consumer.ConsumerIterator;
 import kafka.javaapi.consumer.ConsumerConnector;
-import kafka.message.MessageAndMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +26,6 @@ public final class ConsoleConsumer {
         }, "shutdownHook"));
 
         LOGGER.info("OK! Waiting for messages...");
-        MessageAndMetadata data;
-
-        while (consumerIterator.hasNext()) {
-            data = consumerIterator.next();
-            System.out.println("[partition: " + data.partition() + "] " + data.message());
-        }
+        consumerIterator.forEachRemaining(data -> System.out.println("[partition: " + data.partition() + "] " + data.message()));
     }
 }

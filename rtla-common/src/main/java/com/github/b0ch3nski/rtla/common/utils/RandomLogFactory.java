@@ -2,10 +2,13 @@ package com.github.b0ch3nski.rtla.common.utils;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.net.InetAddresses;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author bochen
@@ -31,11 +34,11 @@ public final class RandomLogFactory {
     }
 
     public static List<SimplifiedLog> create(int amount) {
-        List<SimplifiedLog> toReturn = new ArrayList<>();
+        Builder<SimplifiedLog> builder = ImmutableList.builder();
 
         for (int i = 0; i < amount; i++) {
-            toReturn.add(create());
+            builder.add(create());
         }
-        return toReturn;
+        return builder.build();
     }
 }

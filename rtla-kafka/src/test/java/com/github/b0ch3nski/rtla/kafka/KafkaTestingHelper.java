@@ -45,7 +45,7 @@ public final class KafkaTestingHelper {
     }
 
     public void start() throws Exception {
-        zkServer = new TestingServer(zkPort);
+        zkServer = new TestingServer(zkPort, true);
         zkClient = new ZkClient(zkServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
 
         File logs = Files.createTempDirectory("kafka_tmp").toFile();
@@ -66,18 +66,16 @@ public final class KafkaTestingHelper {
     }
 
     public void send(SimplifiedLog message, String topicName) {
-        if (producer == null) {
-            producer = KafkaUtils.createProducer("localhost:" + kafkaPort, KafkaProducerType.ASYNC, false);
-        }
+        if (producer == null) producer = KafkaUtils.createProducer("localhost:" + kafkaPort, KafkaProducerType.ASYNC, false);
         producer.send(new KeyedMessage<>(topicName, message.getHostName(), message));
         LOGGER.debug("Sent message: {}", message);
     }
 
-    public void send(Collection<SimplifiedLog> messages, String topicName) {
+    public void send(List<SimplifiedLog> messages, String topicName) {
         messages.forEach(message -> send(message, topicName));
     }
 
-    public Callable<Boolean> messagesArrived(Collection<SimplifiedLog> expected) {
+    public Callable<Boolean> messagesArrived(List<SimplifiedLog> expected) {
         ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
         ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
         List<SimplifiedLog> received = new ArrayList<>();
@@ -96,7 +94,7 @@ public final class KafkaTestingHelper {
     /*
     // Not used anymore... Kept for a reference.
     @Deprecated
-    public Collection<SimplifiedLog> receive(int messageCount, int messagesTimeout) throws TimeoutException {
+    public List<SimplifiedLog> receive(int messageCount, int messagesTimeout) throws TimeoutException {
         ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
         ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
 
@@ -128,14 +126,8 @@ public final class KafkaTestingHelper {
     }
 
     public void stop() throws IOException {
-        if (zkClient != null) {
-            zkClient.close();
-        }
-        if (kafkaServer != null) {
-            kafkaServer.shutdown();
-        }
-        if (zkServer != null) {
-            zkServer.stop();
-        }
+        if (zkClient != null) zkClient.close();
+        if (kafkaServer != null) kafkaServer.shutdown();
+        if (zkServer != null) zkServer.stop();
     }
 }

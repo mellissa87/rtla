@@ -4,14 +4,14 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.serializers.CollectionSerializer;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,8 +30,7 @@ public final class SimplifiedLogSerializer {
     private Kryo createAndConfigureKryo() {
         Kryo kryo = new Kryo();
         kryo.register(SimplifiedLog.class, new SimplifiedLogKryoSerializer());
-        CollectionSerializer listSerializer = new CollectionSerializer(SimplifiedLog.class, new SimplifiedLogKryoSerializer(), false);
-        kryo.register(ArrayList.class, listSerializer);
+        kryo.register(ImmutableList.class, new ImmutableListSerializer());
         return kryo;
     }
 
@@ -112,15 +111,19 @@ public final class SimplifiedLogSerializer {
     @SuppressWarnings("unchecked")
     public List<SimplifiedLog> listFromBytes(byte[] toDeserialize) {
         Input input = new Input(toDeserialize);
-        List<SimplifiedLog> deserialized = kryo.get().readObject(input, ArrayList.class);
+        List<SimplifiedLog> deserialized = kryo.get().readObject(input, ImmutableList.class);
         input.close();
         return deserialized;
     }
 
-    private static final class SimplifiedLogKryoSerializer extends Serializer<SimplifiedLog> {
+    private final class SimplifiedLogKryoSerializer extends Serializer<SimplifiedLog> {
+        public SimplifiedLogKryoSerializer() {
+            super(false, false);
+        }
+
         @Override
         public void write(Kryo kryo, Output output, SimplifiedLog log) {
-            output.writeLong(log.getTimeStamp());
+            output.writeLong(log.getTimeStamp(), true);
             output.writeString(log.getHostName());
             output.writeString(log.getLevel());
             output.writeString(log.getThreadName());
@@ -131,13 +134,36 @@ public final class SimplifiedLogSerializer {
         @Override
         public SimplifiedLog read(Kryo kryo, Input input, Class<SimplifiedLog> type) {
             return new SimplifiedLogBuilder()
-                    .withTimeStamp(input.readLong())
+                    .withTimeStamp(input.readLong(true))
                     .withHostName(input.readString())
                     .withLevel(input.readString())
                     .withThreadName(input.readString())
                     .withLoggerName(input.readString())
                     .withFormattedMessage(input.readString())
                     .build();
+        }
+    }
+
+    private final class ImmutableListSerializer extends Serializer<ImmutableList<Object>> {
+        public ImmutableListSerializer() {
+            super(false, true);
+        }
+
+        @Override
+        public void write(Kryo kryo, Output output, ImmutableList<Object> object) {
+            output.writeInt(object.size(), true);
+            object.forEach(element -> kryo.writeClassAndObject(output, element));
+        }
+
+        @Override
+        public ImmutableList<Object> read(Kryo kryo, Input input, Class<ImmutableList<Object>> type) {
+            int elements = input.readInt(true);
+            Builder<Object> builder = ImmutableList.builder();
+
+            for (int i = 0; i < elements; i++) {
+                builder.add(kryo.readClassAndObject(input));
+            }
+            return builder.build();
         }
     }
 }

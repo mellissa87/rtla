@@ -12,9 +12,7 @@ public final class HostnamePartitioner implements Partitioner {
     private static final Logger LOGGER = LoggerFactory.getLogger(HostnamePartitioner.class);
 
     public HostnamePartitioner(VerifiableProperties properties) {
-        if (properties != null) {
-            LOGGER.debug("Creating partitioner with properties: {}", properties);
-        }
+        if (properties != null) LOGGER.debug("Creating partitioner with properties: {}", properties);
     }
 
     @Override
