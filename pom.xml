@@ -62,7 +62,7 @@
         <!-- core frameworks -->
         <cassandra.version>2.1.8</cassandra.version>
         <kafka.version>0.8.2.2</kafka.version>
-        <storm.version>0.9.6</storm.version>
+        <storm.version>0.10.0</storm.version>
 
         <!-- core libs -->
         <guava.version>18.0</guava.version>
