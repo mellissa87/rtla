@@ -28,11 +28,13 @@ sleep 5
 if [ -z ${DOCKER_HOST+x} ]; then
     export CASS_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' cassandra)
     export ZK_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' zookeeper)
+    export NIMBUS_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' storm-nimbus)
     echo "Local Docker instance found! \n"
 else
     export DOCKER_IP=$(echo $DOCKER_HOST | awk -F '/' '{print $3}' | awk -F ':' '{print $1}')
     export CASS_IP=${DOCKER_IP}
     export ZK_IP=${DOCKER_IP}
+    export NIMBUS_IP=${DOCKER_IP}
     echo "Using Docker instance at ${DOCKER_IP}\n"
 fi
 
@@ -43,6 +45,11 @@ sleep 5
 
 echo "Importing Cassandra database schema..."
 cqlsh ${CASS_IP} 9042 -f rtla-cassandra/schema/schema.cql
+echo "OK! \n"
+sleep 10
+
+echo "Importing Storm topology..."
+storm jar rtla-storm/target/rtla-storm-1.0.0.jar org.apache.storm.flux.Flux --remote rtla-storm/config/logs-topology.yaml -c nimbus.host=${NIMBUS_IP} -c nimbus.thrift.port=6627
 echo "OK! \n"
 sleep 10
 
