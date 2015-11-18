@@ -1,5 +1,6 @@
-package com.github.b0ch3nski.rtla.common.model;
+package com.github.b0ch3nski.rtla.common.serialization;
 
+import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.utils.RandomLogFactory;
 import org.junit.Test;
 import org.openjdk.jmh.annotations.*;

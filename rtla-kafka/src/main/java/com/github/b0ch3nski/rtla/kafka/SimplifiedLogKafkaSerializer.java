@@ -1,7 +1,7 @@
 package com.github.b0ch3nski.rtla.kafka;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.model.SimplifiedLogSerializer;
+import com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogSerializer;
 import kafka.serializer.Decoder;
 import kafka.serializer.Encoder;
 import kafka.utils.VerifiableProperties;

@@ -4,7 +4,7 @@ import backtype.storm.spout.MultiScheme;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.model.SimplifiedLogSerializer;
+import com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogSerializer;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;

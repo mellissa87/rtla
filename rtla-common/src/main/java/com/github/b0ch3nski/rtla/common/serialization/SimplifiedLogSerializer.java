@@ -1,10 +1,10 @@
-package com.github.b0ch3nski.rtla.common.model;
+package com.github.b0ch3nski.rtla.common.serialization;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
+import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -114,34 +114,6 @@ public final class SimplifiedLogSerializer {
         List<SimplifiedLog> deserialized = kryo.get().readObject(input, ImmutableList.class);
         input.close();
         return deserialized;
-    }
-
-    private final class SimplifiedLogKryoSerializer extends Serializer<SimplifiedLog> {
-        public SimplifiedLogKryoSerializer() {
-            super(false, false);
-        }
-
-        @Override
-        public void write(Kryo kryo, Output output, SimplifiedLog log) {
-            output.writeLong(log.getTimeStamp(), true);
-            output.writeString(log.getHostName());
-            output.writeString(log.getLevel());
-            output.writeString(log.getThreadName());
-            output.writeString(log.getLoggerName());
-            output.writeString(log.getFormattedMessage());
-        }
-
-        @Override
-        public SimplifiedLog read(Kryo kryo, Input input, Class<SimplifiedLog> type) {
-            return new SimplifiedLogBuilder()
-                    .withTimeStamp(input.readLong(true))
-                    .withHostName(input.readString())
-                    .withLevel(input.readString())
-                    .withThreadName(input.readString())
-                    .withLoggerName(input.readString())
-                    .withFormattedMessage(input.readString())
-                    .build();
-        }
     }
 
     private final class ImmutableListSerializer extends Serializer<ImmutableList<Object>> {

@@ -1,0 +1,50 @@
+name: "logs-topology"
+
+config:
+  topology.workers: 2
+  topology.debug: false
+  topology.fall.back.on.java.serialization: false
+  topology.max.spout.pending: 10000
+  topology.message.timeout.secs: 120
+  topology.kryo.register:
+    - com.github.b0ch3nski.rtla.common.model.SimplifiedLog: com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogKryoSerializer
+
+components:
+  - id: "zkHosts"
+    className: "storm.kafka.ZkHosts"
+    constructorArgs:
+      - "zk:2181"
+
+  - id: "logsScheme"
+    className: "com.github.b0ch3nski.rtla.storm.spouts.LogsSpoutScheme"
+
+  - id: "logsSpoutConfig"
+    className: "storm.kafka.SpoutConfig"
+    constructorArgs:
+      - ref: "zkHosts"
+      - "logs"
+      - "/logs-spout-offsets"
+      - "logs-spout"
+    properties:
+      - name: "scheme"
+        ref: "logsScheme"
+
+spouts:
+  - id: "logs-kafka-spout"
+    className: "storm.kafka.KafkaSpout"
+    constructorArgs:
+      - ref: "logsSpoutConfig"
+    parallelism: 4
+
+bolts:
+  - id: "logs-cassandra-bolt"
+    className: "com.github.b0ch3nski.rtla.storm.bolts.LogsCassandraBolt"
+    parallelism: 4
+
+streams:
+  - name: "kafka --> cassandra"
+    from: "logs-kafka-spout"
+    to: "logs-cassandra-bolt"
+    grouping:
+      type: FIELDS
+      args: ["host"]
