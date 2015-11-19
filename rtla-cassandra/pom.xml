@@ -26,7 +26,7 @@
 
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-mapping</artifactId>
+            <artifactId>cassandra-driver-core</artifactId>
             <version>${cassandra.version}</version>
         </dependency>
     </dependencies>
