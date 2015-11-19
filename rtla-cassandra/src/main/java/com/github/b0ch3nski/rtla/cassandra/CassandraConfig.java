@@ -8,18 +8,14 @@ import com.google.common.base.*;
 public final class CassandraConfig {
     private final String host;
     private final int port;
-    private final String logsKeyspace;
-    private final int logsTTL;
-    private final boolean isAsync;
     private final int batchSize;
+    private final int flushTime;
 
     private CassandraConfig(CassandraConfigBuilder builder) {
         host = builder.host;
         port = builder.port;
-        logsKeyspace = builder.logsKeyspace;
-        logsTTL = builder.logsTTL;
-        isAsync = builder.isAsync;
         batchSize = builder.batchSize;
+        flushTime = builder.flushTime;
     }
 
     public String getHost() {
@@ -30,20 +26,12 @@ public final class CassandraConfig {
         return port;
     }
 
-    public String getLogsKeyspace() {
-        return logsKeyspace;
-    }
-
-    public int getLogsTTL() {
-        return logsTTL;
-    }
-
-    public boolean isAsync() {
-        return isAsync;
-    }
-
     public int getBatchSize() {
         return batchSize;
+    }
+
+    public int getFlushTime() {
+        return flushTime;
     }
 
     @Override
@@ -51,22 +39,19 @@ public final class CassandraConfig {
         return MoreObjects.toStringHelper(this)
                 .add("host", host)
                 .add("port", port)
-                .add("logsKeyspace", logsKeyspace)
-                .add("logsTTL", logsTTL)
-                .add("isAsync", isAsync)
                 .add("batchSize", batchSize)
+                .add("flushTime", flushTime)
                 .toString();
     }
 
     public static final class CassandraConfigBuilder {
         private String host;
         private int port;
-        private String logsKeyspace;
-        private int logsTTL;
-        private boolean isAsync;
         private int batchSize;
+        private int flushTime;
 
         public CassandraConfigBuilder withHost(String host) {
+            validate(host, "host");
             this.host = host;
             return this;
         }
@@ -77,25 +62,15 @@ public final class CassandraConfig {
             return this;
         }
 
-        public CassandraConfigBuilder withLogsKeyspace(String logsKeyspace) {
-            this.logsKeyspace = logsKeyspace;
-            return this;
-        }
-
-        public CassandraConfigBuilder withLogsTTL(int logsTTL) {
-            Preconditions.checkArgument((logsTTL >= 0), "logsTTL must be >= 0");
-            this.logsTTL = logsTTL;
-            return this;
-        }
-
-        public CassandraConfigBuilder withAsync(boolean isAsync) {
-            this.isAsync = isAsync;
-            return this;
-        }
-
         public CassandraConfigBuilder withBatchSize(int batchSize) {
             Preconditions.checkArgument((batchSize >= 0), "batchSize must be >= 0");
             this.batchSize = batchSize;
+            return this;
+        }
+
+        public CassandraConfigBuilder withFlushTime(int flushTime) {
+            Preconditions.checkArgument((flushTime >= 0), "flushTime must be >= 0");
+            this.flushTime = flushTime;
             return this;
         }
 
@@ -104,8 +79,6 @@ public final class CassandraConfig {
         }
 
         public CassandraConfig build() {
-            validate(host, "host");
-            validate(logsKeyspace, "logsKeyspace");
             return new CassandraConfig(this);
         }
     }

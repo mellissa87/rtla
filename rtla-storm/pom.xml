@@ -34,12 +34,6 @@
             <groupId>com.github.b0ch3nski</groupId>
             <artifactId>rtla-cassandra</artifactId>
             <version>${rtla.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.codahale.metrics</groupId>
-                    <artifactId>metrics-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

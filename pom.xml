@@ -60,7 +60,8 @@
         <docker.plugin.version>0.3.5</docker.plugin.version>
 
         <!-- core frameworks -->
-        <cassandra.version>2.1.8</cassandra.version>
+        <cassandra.version>2.2.3</cassandra.version>
+        <cassandra-driver.version>3.0.0-alpha5</cassandra-driver.version>
         <kafka.version>0.8.2.2</kafka.version>
         <storm.version>0.10.0</storm.version>
 
@@ -83,6 +84,7 @@
         <mockito.version>1.10.19</mockito.version>
         <awaitility.version>1.6.5</awaitility.version>
         <jmh.version>1.11.2</jmh.version>
+        <cassandra-unit.version>2.1.9.2</cassandra-unit.version>
     </properties>
 
     <dependencies>
