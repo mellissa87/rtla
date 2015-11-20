@@ -2,7 +2,8 @@ package com.github.b0ch3nski.rtla.cassandra;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.QueryTrace.Event;
-import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,17 +16,22 @@ import java.util.Map;
 public final class CassandraSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(CassandraSession.class);
     private static CassandraSession instance;
-    private final Map<String, PreparedStatement> statementCache;
+    private Map<String, PreparedStatement> statementCache;
+    private boolean traceQuery;
     private Cluster cluster;
     private Session session;
 
     private CassandraSession(CassandraConfig config) {
         statementCache = new HashMap<>();
+        traceQuery = LOGGER.isDebugEnabled();
+
         cluster = Cluster.builder()
                 .addContactPoint(config.getHost())
                 .withPort(config.getPort())
+                .withSocketOptions(new SocketOptions().setReadTimeoutMillis(30000))
                 .build();
         session = cluster.connect();
+
         LOGGER.debug("New Cassandra session was created with config = {}", config);
     }
 
@@ -44,20 +50,22 @@ public final class CassandraSession {
         return statement;
     }
 
+    public Statement getStatement(String query) {
+        return session.newSimpleStatement(query);
+    }
+
     public ResultSet executeStatement(Statement statement) {
-        if (LOGGER.isDebugEnabled()) statement.enableTracing();
-        ResultSet result = session.execute(statement);
-        getQueryTraceInfo(result);
-        return result;
+        if (traceQuery) statement.enableTracing();
+        return withQueryTraceInfo(session.execute(statement));
     }
 
-    public void executeAsyncStatement(Statement statement) {
-        if (LOGGER.isDebugEnabled()) statement.enableTracing();
-        addCallBack(session.executeAsync(statement));
+    public ResultSetFuture executeAsyncStatement(Statement statement) {
+        if (traceQuery) statement.enableTracing();
+        return withCallback(session.executeAsync(statement));
     }
 
-    private void getQueryTraceInfo(ResultSet result) {
-        if (LOGGER.isDebugEnabled()) {
+    private ResultSet withQueryTraceInfo(ResultSet result) {
+        if (traceQuery) {
             QueryTrace trace = result.getExecutionInfo().getQueryTrace();
 
             if (LOGGER.isTraceEnabled()) {
@@ -68,20 +76,22 @@ public final class CassandraSession {
             LOGGER.debug("Request type: {} | Coordinator used: {} | Execution took: {} microseconds",
                     trace.getRequestType(), trace.getCoordinator(), trace.getDurationMicros());
         }
+        return result;
     }
 
-    private void addCallBack(ListenableFuture<ResultSet> future) {
+    private ResultSetFuture withCallback(ResultSetFuture future) {
         Futures.addCallback(future, new FutureCallback<ResultSet>() {
             @Override
             public void onSuccess(ResultSet result) {
-                getQueryTraceInfo(result);
+                withQueryTraceInfo(result);
             }
 
             @Override
             public void onFailure(Throwable t) {
-                LOGGER.error("Unable to insert message", t);
+                LOGGER.error("Unable to execute statement", t);
             }
         });
+        return future;
     }
 
     public static synchronized void shutdown() {

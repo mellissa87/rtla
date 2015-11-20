@@ -2,8 +2,8 @@ package com.github.b0ch3nski.rtla.cassandra.dao;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.BatchStatement.Type;
-import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
-import com.github.b0ch3nski.rtla.cassandra.CassandraSession;
+import com.github.b0ch3nski.rtla.cassandra.*;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.cache.*;
 import org.apache.commons.lang3.StringUtils;
@@ -21,16 +21,16 @@ public abstract class BaseDao<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseDao.class);
     private static final String CACHE_KEY_NAME = "cache";
     private final CassandraConfig config;
-    private final String columnWithKeyspace;
-    private final int timeToLive;
+    private final Table table;
     private final int batchSize;
     private final Cache<String, List<T>> batchCache;
+    private final PreparedStatement insertStatement;
 
-    public BaseDao(CassandraConfig config, String keyspaceName, String columnName, int timeToLive) {
+    public BaseDao(CassandraConfig config, Table table, long timeToLive) {
         this.config = config;
-        columnWithKeyspace = keyspaceName + "." + columnName;
-        this.timeToLive = timeToLive;
+        this.table = table;
         batchSize = config.getBatchSize();
+        insertStatement = getPreparedStatement(table.getInsertQuery(getColumns(), timeToLive));
 
         batchCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(config.getFlushTime(), TimeUnit.SECONDS)
@@ -42,9 +42,7 @@ public abstract class BaseDao<T> {
         @Override
         public void onRemoval(RemovalNotification<String, List<T>> notification) {
             if (notification.getCause() != RemovalCause.REPLACED) {
-                BatchStatement statement = new BatchStatement(Type.UNLOGGED);
-                List<T> toFlush = (notification.getValue() != null) ? notification.getValue() : new ArrayList<>();
-                flushBatch(statement, toFlush);
+                flushBatch((notification.getValue() != null) ? notification.getValue() : new ArrayList<>());
 
                 LOGGER.debug("Flushed batch cache | Flush cause: {} | All cached buffers: {}",
                         getRemovalCause(notification.getCause()), batchCache.size());
@@ -56,16 +54,21 @@ public abstract class BaseDao<T> {
         }
     }
 
-    public String getColumnWithKeyspace() {
-        return columnWithKeyspace;
+    public Table getTable() {
+        return table;
     }
 
-    public int getTimeToLive() {
-        return timeToLive;
+    public long countAllElements() {
+        return executeStatement(getPreparedStatement(table.getCountQuery()).bind()).one().getLong(0);
     }
 
-    public long count() {
-        return executeStatement(getPreparedStatement("SELECT COUNT(*) FROM " + columnWithKeyspace + ";").bind()).one().getLong(0);
+    @VisibleForTesting
+    void truncateTable() {
+        executeStatement(getStatement(table.getTruncateQuery()));
+    }
+
+    public Statement getStatement(String query) {
+        return CassandraSession.getInstance(config).getStatement(query);
     }
 
     public PreparedStatement getPreparedStatement(String query) {
@@ -76,35 +79,39 @@ public abstract class BaseDao<T> {
         return CassandraSession.getInstance(config).executeStatement(statement);
     }
 
-    private void flushBatch(BatchStatement statement, List<T> toFlush) {
-        for (T item : toFlush) {
-            addToBatch(statement, item);
-        }
-        CassandraSession.getInstance(config).executeAsyncStatement(statement);
-
-        if (LOGGER.isTraceEnabled()) {
-            String type = toFlush.isEmpty() ? "" : toFlush.get(0).getClass().getName();
-            String joinedList = Joiner.on(", ").join(toFlush);
-            LOGGER.trace("[{}] saved: {}", type, joinedList);
-        }
+    public ResultSetFuture executeAsyncStatement(Statement statement) {
+        return CassandraSession.getInstance(config).executeAsyncStatement(statement);
     }
 
-    public void batchSave(T item) {
+    private void flushBatch(List<T> toFlush) {
+        BatchStatement statement = new BatchStatement(Type.UNLOGGED);
+        for (T item : toFlush) {
+            statement.add(insertStatement.bind(getValuesToInsert(item)));
+        }
+        executeAsyncStatement(statement);
+
+        LOGGER.trace("Saved batch of:\n{}", Joiner.on("\n").join(toFlush));
+    }
+
+    public void save(T item) {
         List<T> buffer = batchCache.getIfPresent(CACHE_KEY_NAME);
         if (buffer == null) buffer = new ArrayList<>();
 
         buffer.add(item);
         batchCache.put(CACHE_KEY_NAME, buffer);
 
-        if (buffer.size() >= batchSize) {
-            batchCache.invalidate(CACHE_KEY_NAME);
-            LOGGER.debug("Max size reached, invalidating batch cache");
-        }
+        if (buffer.size() >= batchSize) batchCache.invalidate(CACHE_KEY_NAME);
     }
-
-    protected abstract void addToBatch(BatchStatement batch, T item);
 
     public void shutdown() {
         CassandraSession.shutdown();
     }
+
+    protected abstract Object[] getValuesToInsert(T item);
+
+    protected abstract String[] getColumns();
+
+    protected abstract List<T> getListFromResultSet(ResultSet result);
+
+    protected abstract T getObjectFromRow(Row single);
 }

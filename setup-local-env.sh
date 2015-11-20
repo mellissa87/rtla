@@ -44,7 +44,7 @@ echo "OK! \n"
 sleep 5
 
 echo "Importing Cassandra database schema..."
-cqlsh ${CASS_IP} 9042 -f rtla-cassandra/schema/schema.cql
+cqlsh ${CASS_IP} 9042 -f rtla-cassandra/src/main/resources/schema.cql
 echo "OK! \n"
 sleep 10
 

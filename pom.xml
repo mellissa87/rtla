@@ -60,7 +60,6 @@
         <docker.plugin.version>0.3.5</docker.plugin.version>
 
         <!-- core frameworks -->
-        <cassandra.version>2.2.3</cassandra.version>
         <cassandra-driver.version>3.0.0-alpha5</cassandra-driver.version>
         <kafka.version>0.8.2.2</kafka.version>
         <storm.version>0.10.0</storm.version>

@@ -1,5 +1,6 @@
 package com.github.b0ch3nski.rtla.common.utils;
 
+import ch.qos.logback.classic.Level;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
 import com.google.common.collect.ImmutableList;
@@ -23,10 +24,18 @@ public final class RandomLogFactory {
     }
 
     public static SimplifiedLog create() {
+        return create(RandomStringUtils.randomAlphanumeric(5));
+    }
+
+    public static SimplifiedLog create(Level level) {
+        return create(level.toString());
+    }
+
+    public static SimplifiedLog create(String level) {
         return new SimplifiedLogBuilder()
                 .withTimeStamp(System.currentTimeMillis())
                 .withHostName(InetAddresses.fromInteger(RAND.nextInt()).getHostAddress())
-                .withLevel(RandomStringUtils.randomAlphanumeric(5))
+                .withLevel(level)
                 .withThreadName(RandomStringUtils.randomAlphanumeric(randomIntBetween(10, 20)))
                 .withLoggerName(RandomStringUtils.randomAlphanumeric(randomIntBetween(10, 20)))
                 .withFormattedMessage(RandomStringUtils.randomAlphanumeric(randomIntBetween(50, 150)))

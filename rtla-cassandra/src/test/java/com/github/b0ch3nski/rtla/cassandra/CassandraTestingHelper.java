@@ -6,7 +6,9 @@ import com.datastax.driver.core.exceptions.AlreadyExistsException;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig.CassandraConfigBuilder;
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
@@ -14,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -26,12 +26,12 @@ public final class CassandraTestingHelper {
 
     private CassandraTestingHelper() { }
 
-    public static void launchCassandra(String pathToSchema) {
+    public static void launchCassandra() {
         try {
             LOGGER.debug("Starting embedded Cassandra...");
             EmbeddedCassandraServerHelper.startEmbeddedCassandra(300000);
             LOGGER.debug("Embedded Cassandra started!");
-            new SchemaManager().importSchema(pathToSchema);
+            new SchemaManager().importSchema();
         } catch (InterruptedException | IOException | TTransportException | ConfigurationException e) {
             throw new EmbeddedCassandraException("Couldn't start embedded Cassandra", e);
         }
@@ -42,7 +42,7 @@ public final class CassandraTestingHelper {
                 .withHost(EmbeddedCassandraServerHelper.getHost())
                 .withPort(EmbeddedCassandraServerHelper.getNativeTransportPort())
                 .withBatchSize(0)
-                .withFlushTime(0)
+                .withFlushTime(5)
                 .build();
     }
 
@@ -78,23 +78,23 @@ public final class CassandraTestingHelper {
         }
 
         private void executeSchema(List<String> statementList) {
-            LOGGER.debug("Executing schema statements...");
+            LOGGER.trace("Executing schema statements\n{}", Joiner.on("\n").join(statementList));
             for (String statement : statementList) {
                 execute(statement + ";");
             }
         }
 
-        private String loadSchemaFromFile(String pathToSchema) {
+        private String loadSchema() {
             try {
-                return (Files.readAllLines(Paths.get(pathToSchema), Charsets.UTF_8)).toString();
+                return Resources.toString(Resources.getResource("schema.cql"), Charsets.UTF_8);
             } catch (IOException e) {
-                throw new EmbeddedCassandraException("Couldn't load schema from file " + pathToSchema, e);
+                throw new EmbeddedCassandraException("Couldn't load schema from resources", e);
             }
         }
 
-        public void importSchema(String pathToSchema) {
+        public void importSchema() {
             LOGGER.debug("Starting schema import...");
-            executeSchema(parseSchema(loadSchemaFromFile(pathToSchema)));
+            executeSchema(parseSchema(loadSchema()));
             shutdown();
             LOGGER.debug("Schema import done!");
         }
