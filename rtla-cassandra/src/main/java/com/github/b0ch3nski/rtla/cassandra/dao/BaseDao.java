@@ -24,18 +24,18 @@ public abstract class BaseDao<T> {
     private final Table table;
     private final int batchSize;
     private final Cache<String, List<T>> batchCache;
-    private final PreparedStatement insertStatement;
+    private final String insertQuery;
 
     public BaseDao(CassandraConfig config, Table table, long timeToLive) {
         this.config = config;
         this.table = table;
         batchSize = config.getBatchSize();
-        insertStatement = getPreparedStatement(table.getInsertQuery(getColumns(), timeToLive));
 
         batchCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(config.getFlushTime(), TimeUnit.SECONDS)
                 .removalListener(new BatchCacheFlusher())
                 .build();
+        insertQuery = table.getInsertQuery(getColumns(), timeToLive);
     }
 
     private final class BatchCacheFlusher implements RemovalListener<String, List<T>> {
@@ -84,11 +84,12 @@ public abstract class BaseDao<T> {
     }
 
     private void flushBatch(List<T> toFlush) {
-        BatchStatement statement = new BatchStatement(Type.UNLOGGED);
+        PreparedStatement insertStatement = getPreparedStatement(insertQuery);
+        BatchStatement batch = new BatchStatement(Type.UNLOGGED);
         for (T item : toFlush) {
-            statement.add(insertStatement.bind(getValuesToInsert(item)));
+            batch.add(insertStatement.bind(getValuesToInsert(item)));
         }
-        executeAsyncStatement(statement);
+        executeAsyncStatement(batch);
 
         LOGGER.trace("Saved batch of:\n{}", Joiner.on("\n").join(toFlush));
     }

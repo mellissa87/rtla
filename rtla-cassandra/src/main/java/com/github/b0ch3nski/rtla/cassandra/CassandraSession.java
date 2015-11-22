@@ -40,7 +40,7 @@ public final class CassandraSession {
         return instance;
     }
 
-    public PreparedStatement getPreparedStatement(String query) {
+    public synchronized PreparedStatement getPreparedStatement(String query) {
         PreparedStatement statement = statementCache.get(query);
         if (statement == null) {
             LOGGER.trace("Statement [{}] was not found in cache - preparing it now | Statements in cache = {}", query, statementCache.size());
