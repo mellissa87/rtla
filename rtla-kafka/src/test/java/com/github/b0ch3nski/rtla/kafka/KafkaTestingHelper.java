@@ -30,18 +30,25 @@ public final class KafkaTestingHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTestingHelper.class);
     private final int zkPort;
     private final int kafkaPort;
-    private final String topicName;
-    private final int topicPartitions;
     private TestingServer zkServer;
     private ZkClient zkClient;
     private KafkaServerStartable kafkaServer;
     private Producer<String, SimplifiedLog> producer;
 
-    public KafkaTestingHelper(int zkPort, int kafkaPort, String topicName, int topicPartitions) {
+    public KafkaTestingHelper(int zkPort, int kafkaPort) {
         this.zkPort = zkPort;
         this.kafkaPort = kafkaPort;
-        this.topicName = topicName;
-        this.topicPartitions = topicPartitions;
+    }
+
+    private Properties getServerProperties(String logsPath) {
+        Properties serverProperties = new Properties();
+        serverProperties.put("zookeeper.connect", zkServer.getConnectString());
+        serverProperties.put("broker.id", "1");
+        serverProperties.put("host.name", "localhost");
+        serverProperties.put("port", String.valueOf(kafkaPort));
+        serverProperties.put("log.dir", logsPath);
+        serverProperties.put("log.flush.interval.messages", "1");
+        return serverProperties;
     }
 
     public void start() throws Exception {
@@ -50,19 +57,17 @@ public final class KafkaTestingHelper {
 
         File logs = Files.createTempDirectory("kafka_tmp").toFile();
         logs.deleteOnExit();
-        LOGGER.debug("Created temp log dir: {}", logs.getAbsolutePath());
+        String logsPath = logs.getAbsolutePath();
+        LOGGER.trace("Created temp log dir: {}", logsPath);
 
-        Properties serverProperties = new Properties();
-        serverProperties.put("zookeeper.connect", zkServer.getConnectString());
-        serverProperties.put("broker.id", "1");
-        serverProperties.put("host.name", "localhost");
-        serverProperties.put("port", String.valueOf(kafkaPort));
-        serverProperties.put("log.dir", logs.getAbsolutePath());
-        serverProperties.put("log.flush.interval.messages", "1");
-
-        kafkaServer = new KafkaServerStartable(new KafkaConfig(serverProperties));
+        kafkaServer = new KafkaServerStartable(new KafkaConfig(getServerProperties(logsPath)));
         kafkaServer.startup();
+        LOGGER.debug("Started Kafka server at port {}", kafkaPort);
+    }
+
+    public void createTopic(String topicName, int topicPartitions) {
         AdminUtils.createTopic(zkClient, topicName, topicPartitions, 1, new Properties());
+        LOGGER.debug("Created topic '{}' with {} partitions", topicName, topicPartitions);
     }
 
     public void send(SimplifiedLog message, String topicName) {
@@ -75,7 +80,7 @@ public final class KafkaTestingHelper {
         messages.forEach(message -> send(message, topicName));
     }
 
-    public Callable<Boolean> messagesArrived(List<SimplifiedLog> expected) {
+    public Callable<Boolean> messagesArrived(String topicName, List<SimplifiedLog> expected) {
         ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
         ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
         List<SimplifiedLog> received = new ArrayList<>();
@@ -91,37 +96,7 @@ public final class KafkaTestingHelper {
         };
     }
 
-    /*
-    // Not used anymore... Kept for a reference.
-    @Deprecated
-    public List<SimplifiedLog> receive(int messageCount, int messagesTimeout) throws TimeoutException {
-        ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
-        ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
-
-        ExecutorService singleThread = Executors.newSingleThreadExecutor();
-        Future<List<SimplifiedLog>> submit = singleThread.submit(() -> {
-            List<SimplifiedLog> received = new ArrayList<>();
-
-            while ((received.size() != messageCount) && consumerIterator.hasNext()) {
-                MessageAndMetadata data = consumerIterator.next();
-                received.add((SimplifiedLog) data.message());
-                LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
-            }
-            return received;
-        });
-
-        try {
-            return submit.get(messagesTimeout, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
-            throw new TimeoutException("Timed out waiting for messages");
-        } finally {
-            singleThread.shutdown();
-            consumer.shutdown();
-        }
-    }
-    */
-
-    public boolean isTopicAvailable() {
+    public boolean isTopicAvailable(String topicName) {
         return AdminUtils.topicExists(zkClient, topicName);
     }
 
@@ -129,5 +104,6 @@ public final class KafkaTestingHelper {
         if (zkClient != null) zkClient.close();
         if (kafkaServer != null) kafkaServer.shutdown();
         if (zkServer != null) zkServer.stop();
+        LOGGER.debug("Zookeeper / Kafka services stopped!");
     }
 }

@@ -1,8 +1,8 @@
 package com.github.b0ch3nski.rtla.common.model;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.github.b0ch3nski.rtla.common.utils.Validation;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -133,16 +133,12 @@ public final class SimplifiedLog implements Serializable {
             return this;
         }
 
-        private void validate(String toValidate, String varName) {
-            Preconditions.checkArgument(!Strings.isNullOrEmpty(toValidate), varName + " cannot be null or empty!");
-        }
-
         public SimplifiedLog build() {
-            validate(hostName, "hostName");
-            validate(level, "level");
-            validate(threadName, "threadName");
-            validate(loggerName, "loggerName");
-            validate(formattedMessage, "formattedMessage");
+            Validation.isNotNullOrEmpty(hostName, "hostName");
+            Validation.isNotNullOrEmpty(level, "level");
+            Validation.isNotNullOrEmpty(threadName, "threadName");
+            Validation.isNotNullOrEmpty(loggerName, "loggerName");
+            Validation.isNotNullOrEmpty(formattedMessage, "formattedMessage");
             return new SimplifiedLog(this);
         }
     }

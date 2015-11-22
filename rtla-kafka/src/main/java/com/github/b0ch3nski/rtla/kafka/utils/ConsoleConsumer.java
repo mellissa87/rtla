@@ -1,6 +1,7 @@
 package com.github.b0ch3nski.rtla.kafka.utils;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
+import com.github.b0ch3nski.rtla.common.utils.Validation;
 import com.google.common.base.Preconditions;
 import kafka.consumer.ConsumerIterator;
 import kafka.javaapi.consumer.ConsumerConnector;
@@ -15,6 +16,8 @@ public final class ConsoleConsumer {
 
     public static void main(String[] args) {
         Preconditions.checkArgument(args.length == 2, "Usage: java -jar logback-kafka-appender-1.0-shaded.jar zkHost:zkPort topicName");
+        Validation.isNotNullOrEmpty(args[0], "zkConnection");
+        Validation.isNotNullOrEmpty(args[1], "topicName");
 
         LOGGER.info("Starting consumer...");
         ConsumerConnector consumer = KafkaUtils.createConsumer(args[0], "test_group", "1");
