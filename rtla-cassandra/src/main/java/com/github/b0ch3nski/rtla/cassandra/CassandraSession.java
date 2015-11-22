@@ -7,22 +7,22 @@ import com.google.common.util.concurrent.Futures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author bochen
  */
 public final class CassandraSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(CassandraSession.class);
-    private static CassandraSession instance;
-    private Map<String, PreparedStatement> statementCache;
-    private boolean traceQuery;
-    private Cluster cluster;
-    private Session session;
+    private static CassandraSession instance = null;
+    private final Map<String, PreparedStatement> statementCache;
+    private final boolean traceQuery;
+    private Cluster cluster = null;
+    private Session session = null;
 
     private CassandraSession(CassandraConfig config) {
-        statementCache = new HashMap<>();
+        statementCache = new ConcurrentHashMap<>();
         traceQuery = LOGGER.isDebugEnabled();
 
         cluster = Cluster.builder()
@@ -40,7 +40,7 @@ public final class CassandraSession {
         return instance;
     }
 
-    public synchronized PreparedStatement getPreparedStatement(String query) {
+    public PreparedStatement getPreparedStatement(String query) {
         PreparedStatement statement = statementCache.get(query);
         if (statement == null) {
             LOGGER.trace("Statement [{}] was not found in cache - preparing it now | Statements in cache = {}", query, statementCache.size());
