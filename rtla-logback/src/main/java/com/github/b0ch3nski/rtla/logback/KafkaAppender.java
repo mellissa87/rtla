@@ -4,10 +4,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
+import com.github.b0ch3nski.rtla.common.utils.Validation;
 import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils;
 import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils.KafkaProducerType;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 
@@ -56,9 +55,9 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     public void start() {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(hostName), "host name cannot be empty");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(brokers), "broker list cannot be empty");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(topic), "topic name cannot be empty");
+        Validation.isNotNullOrEmpty(hostName, "host name");
+        Validation.isNotNullOrEmpty(brokers, "broker list");
+        Validation.isNotNullOrEmpty(topic, "topic name");
 
         producer = KafkaUtils.createProducer(brokers, KafkaProducerType.ASYNC, requireAcks);
         super.start();

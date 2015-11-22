@@ -1,6 +1,8 @@
 package com.github.b0ch3nski.rtla.cassandra;
 
-import com.google.common.base.*;
+import com.github.b0ch3nski.rtla.common.utils.Validation;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 
 /**
  * @author bochen
@@ -51,7 +53,7 @@ public final class CassandraConfig {
         private int flushTime;
 
         public CassandraConfigBuilder withHost(String host) {
-            validate(host, "host");
+            Validation.isNotNullOrEmpty(host, "host");
             this.host = host;
             return this;
         }
@@ -72,10 +74,6 @@ public final class CassandraConfig {
             Preconditions.checkArgument((flushTime >= 0), "flushTime must be >= 0");
             this.flushTime = flushTime;
             return this;
-        }
-
-        private void validate(String toValidate, String varName) {
-            Preconditions.checkArgument(!Strings.isNullOrEmpty(toValidate), varName + " cannot be null or empty!");
         }
 
         public CassandraConfig build() {
