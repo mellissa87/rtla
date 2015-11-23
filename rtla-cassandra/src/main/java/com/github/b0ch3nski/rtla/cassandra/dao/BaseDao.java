@@ -6,6 +6,7 @@ import com.github.b0ch3nski.rtla.cassandra.*;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.cache.*;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public abstract class BaseDao<T> {
     private final Cache<String, List<T>> batchCache;
     private final String insertQuery;
 
-    public BaseDao(CassandraConfig config, Table table, long timeToLive) {
+    BaseDao(CassandraConfig config, Table table, long timeToLive) {
         this.config = config;
         this.table = table;
         batchSize = config.getBatchSize();
@@ -58,28 +59,29 @@ public abstract class BaseDao<T> {
         return table;
     }
 
-    public long countAllElements() {
+    @VisibleForTesting
+    final long countAllElements() {
         return executeStatement(getPreparedStatement(table.getCountQuery()).bind()).one().getLong(0);
     }
 
     @VisibleForTesting
-    void truncateTable() {
+    final void truncateTable() {
         executeStatement(getStatement(table.getTruncateQuery()));
     }
 
-    public Statement getStatement(String query) {
+    public final Statement getStatement(String query) {
         return CassandraSession.getInstance(config).getStatement(query);
     }
 
-    public PreparedStatement getPreparedStatement(String query) {
+    public final PreparedStatement getPreparedStatement(String query) {
         return CassandraSession.getInstance(config).getPreparedStatement(query);
     }
 
-    public ResultSet executeStatement(Statement statement) {
+    public final ResultSet executeStatement(Statement statement) {
         return CassandraSession.getInstance(config).executeStatement(statement);
     }
 
-    public ResultSetFuture executeAsyncStatement(Statement statement) {
+    public final ResultSetFuture executeAsyncStatement(Statement statement) {
         return CassandraSession.getInstance(config).executeAsyncStatement(statement);
     }
 
@@ -94,17 +96,22 @@ public abstract class BaseDao<T> {
         LOGGER.trace("Saved batch of:\n{}", Joiner.on("\n").join(toFlush));
     }
 
-    public void save(T item) {
+    public final void save(List<T> items) {
         List<T> buffer = batchCache.getIfPresent(CACHE_KEY_NAME);
         if (buffer == null) buffer = new ArrayList<>();
 
-        buffer.add(item);
+        buffer.addAll(items);
         batchCache.put(CACHE_KEY_NAME, buffer);
 
         if (buffer.size() >= batchSize) batchCache.invalidate(CACHE_KEY_NAME);
     }
 
-    public void shutdown() {
+    @SafeVarargs
+    public final void save(T... items) {
+        save(Lists.newArrayList(items));
+    }
+
+    public final void shutdown() {
         CassandraSession.shutdown();
     }
 

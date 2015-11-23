@@ -6,8 +6,6 @@ import com.jayway.awaitility.Awaitility;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +18,6 @@ import static org.junit.Assert.assertThat;
  * @author bochen
  */
 public class KafkaPipeIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaPipeIT.class);
     private static final KafkaTestingHelper KAFKA = new KafkaTestingHelper(12181, 18888);
     private static final String TOPIC = "test";
     private static final int TOPIC_PART = 1;
@@ -46,7 +43,6 @@ public class KafkaPipeIT {
 
     @Test
     public void shouldCreateTopic() {
-        LOGGER.debug("Checking if topic '{}' exist...", TOPIC);
         assertThat(KAFKA.isTopicAvailable(TOPIC), is(true));
     }
 

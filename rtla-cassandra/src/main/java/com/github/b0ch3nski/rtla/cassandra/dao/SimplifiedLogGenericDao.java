@@ -76,19 +76,19 @@ public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
 
     public List<SimplifiedLog> get(String hostName, long startTime, long stopTime) {
         PreparedStatement statement = getPreparedStatement(selectQueries.get("time"));
-        ResultSet result = executeStatement(statement.bind(hostName, startTime, stopTime));
+        ResultSet result = executeStatement(statement.bind(hostName, new Date(startTime), new Date(stopTime)));
         return getListFromResultSet(result);
     }
 
     public List<SimplifiedLog> get(String hostName, long startTime, long stopTime, String loggerName) {
         PreparedStatement statement = getPreparedStatement(selectQueries.get("logger"));
-        ResultSet result = executeStatement(statement.bind(hostName, startTime, stopTime, loggerName));
+        ResultSet result = executeStatement(statement.bind(hostName, new Date(startTime), new Date(stopTime), loggerName));
         return getListFromResultSet(result);
     }
 
     public List<SimplifiedLog> get(String hostName, long startTime, long stopTime, String loggerName, String threadName) {
         PreparedStatement statement = getPreparedStatement(selectQueries.get("thread"));
-        ResultSet result = executeStatement(statement.bind(hostName, startTime, stopTime, loggerName, threadName));
+        ResultSet result = executeStatement(statement.bind(hostName, new Date(startTime), new Date(stopTime), loggerName, threadName));
         return getListFromResultSet(result);
     }
 }

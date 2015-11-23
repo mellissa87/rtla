@@ -15,39 +15,85 @@ import java.util.Random;
  * @author bochen
  */
 public final class RandomLogFactory {
+
+    public static final String HOST1 = "host1";
+    public static final String HOST2 = "host2";
+    public static final long TIME1 = 1429725600000L;
+    public static final long TIME2 = 1434841200000L;
+    public static final String THREAD1 = "thread1";
+    public static final String THREAD2 = "thread2";
+    public static final String LOGGER1 = "logger1";
+    public static final String LOGGER2 = "logger2";
+
     private static final Random RAND = new Random();
 
     private RandomLogFactory() { }
 
-    private static int randomIntBetween(int lower, int upper) {
+    private static int getRandomIntBetween(int lower, int upper) {
         return (int) (Math.random() * (upper - lower)) + lower;
     }
 
+    private static Level getRandomLogLevel() {
+        return Level.toLevel(RandomStringUtils.randomAlphanumeric(5));
+    }
+
+    private static String getRandomString(int minChars, int maxChars) {
+        return RandomStringUtils.randomAlphanumeric(getRandomIntBetween(minChars, maxChars));
+    }
+
+    public static String getRandomIpAddress() {
+        return InetAddresses.fromInteger(RAND.nextInt()).getHostAddress();
+    }
+
     public static SimplifiedLog create() {
-        return create(RandomStringUtils.randomAlphanumeric(5));
+        return create(getRandomLogLevel());
     }
 
     public static SimplifiedLog create(Level level) {
-        return create(level.toString());
+        return create(
+                level,
+                getRandomIpAddress(),
+                System.currentTimeMillis(),
+                getRandomString(10, 20),
+                getRandomString(10, 20)
+        );
     }
 
-    public static SimplifiedLog create(String level) {
+    private static SimplifiedLog create(Level level, String hostName, long timeStamp, String threadName, String loggerName) {
         return new SimplifiedLogBuilder()
-                .withTimeStamp(System.currentTimeMillis())
-                .withHostName(InetAddresses.fromInteger(RAND.nextInt()).getHostAddress())
-                .withLevel(level)
-                .withThreadName(RandomStringUtils.randomAlphanumeric(randomIntBetween(10, 20)))
-                .withLoggerName(RandomStringUtils.randomAlphanumeric(randomIntBetween(10, 20)))
-                .withFormattedMessage(RandomStringUtils.randomAlphanumeric(randomIntBetween(50, 150)))
+                .withTimeStamp(timeStamp)
+                .withHostName(hostName)
+                .withLevel(level.toString())
+                .withThreadName(threadName)
+                .withLoggerName(loggerName)
+                .withFormattedMessage(getRandomString(50, 150))
                 .build();
     }
 
     public static List<SimplifiedLog> create(int amount) {
+        return create(amount, getRandomLogLevel(), true);
+    }
+
+    public static List<SimplifiedLog> create(int amount, Level level) {
+        return create(amount, level, true);
+    }
+
+    public static List<SimplifiedLog> create(int amount, Level level, boolean random) {
         Builder<SimplifiedLog> builder = ImmutableList.builder();
 
         for (int i = 0; i < amount; i++) {
-            builder.add(create());
+            builder.add((random) ? create(level) : createPrepared(level, i));
         }
         return builder.build();
+    }
+
+    private static SimplifiedLog createPrepared(Level level, int i) {
+        return create(
+                level,
+                ((i % 2) == 0) ? HOST1 : HOST2,
+                (((i % 3) == 0) ? TIME1 : TIME2) + (i * 10),
+                ((i % 4) == 0) ? THREAD1 : THREAD2,
+                ((i % 5) == 0) ? LOGGER1 : LOGGER2
+        );
     }
 }
