@@ -8,9 +8,11 @@
         </encoder>
     </appender>
 
-    <!--<logger name="com.github.b0ch3nski" level="DEBUG"/>-->
+    <logger name="org.apache.cassandra" level="OFF"/>
+    <logger name="com.datastax.driver" level="OFF"/>
+    <logger name="com.github.b0ch3nski" level="DEBUG"/>
 
-    <root level="OFF">
+    <root level="WARN">
         <appender-ref ref="consoleAppender" />
     </root>
 

@@ -8,12 +8,10 @@ USE rtla;
 CREATE TABLE IF NOT EXISTS errorlogs (
   host text,
   time timestamp,
-  logger text,
-  thread text,
-  message text,
-  PRIMARY KEY ((host), time, logger, thread)
+  log blob,
+  PRIMARY KEY ((host), time)
 ) WITH COMPACT STORAGE
-  AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+  AND compression = {'sstable_compression': ''}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
   AND gc_grace_seconds = 0
   AND read_repair_chance = 0.0
@@ -23,12 +21,10 @@ CREATE TABLE IF NOT EXISTS errorlogs (
 CREATE TABLE IF NOT EXISTS warnlogs (
   host text,
   time timestamp,
-  logger text,
-  thread text,
-  message text,
-  PRIMARY KEY ((host), time, logger, thread)
+  log blob,
+  PRIMARY KEY ((host), time)
 ) WITH COMPACT STORAGE
-  AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+  AND compression = {'sstable_compression': ''}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
   AND gc_grace_seconds = 0
   AND read_repair_chance = 0.0
@@ -38,12 +34,10 @@ CREATE TABLE IF NOT EXISTS warnlogs (
 CREATE TABLE IF NOT EXISTS infologs (
   host text,
   time timestamp,
-  logger text,
-  thread text,
-  message text,
-  PRIMARY KEY ((host), time, logger, thread)
+  log blob,
+  PRIMARY KEY ((host), time)
 ) WITH COMPACT STORAGE
-  AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+  AND compression = {'sstable_compression': ''}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
   AND gc_grace_seconds = 0
   AND read_repair_chance = 0.0
@@ -53,12 +47,10 @@ CREATE TABLE IF NOT EXISTS infologs (
 CREATE TABLE IF NOT EXISTS debuglogs (
   host text,
   time timestamp,
-  logger text,
-  thread text,
-  message text,
-  PRIMARY KEY ((host), time, logger, thread)
+  log blob,
+  PRIMARY KEY ((host), time)
 ) WITH COMPACT STORAGE
-  AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+  AND compression = {'sstable_compression': ''}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
   AND gc_grace_seconds = 0
   AND read_repair_chance = 0.0
@@ -68,12 +60,10 @@ CREATE TABLE IF NOT EXISTS debuglogs (
 CREATE TABLE IF NOT EXISTS tracelogs (
   host text,
   time timestamp,
-  logger text,
-  thread text,
-  message text,
-  PRIMARY KEY ((host), time, logger, thread)
+  log blob,
+  PRIMARY KEY ((host), time)
 ) WITH COMPACT STORAGE
-  AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+  AND compression = {'sstable_compression': ''}
   AND compaction = {'class': 'DateTieredCompactionStrategy', 'timestamp_resolution': 'MILLISECONDS', 'base_time_seconds': '3600', 'min_threshold': '4', 'max_sstable_age_days': '30'}
   AND gc_grace_seconds = 0
   AND read_repair_chance = 0.0

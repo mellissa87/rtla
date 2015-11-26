@@ -1,7 +1,6 @@
 package com.github.b0ch3nski.rtla.cassandra;
 
 import com.datastax.driver.core.*;
-import com.datastax.driver.core.QueryTrace.Event;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import org.slf4j.Logger;
@@ -9,26 +8,23 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 
 /**
  * @author bochen
  */
 public final class CassandraSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(CassandraSession.class);
+    private static final boolean TRACE_QUERY = LOGGER.isDebugEnabled();
     private static CassandraSession instance = null;
-    private final Map<String, PreparedStatement> statementCache;
-    private final boolean traceQuery;
+    private final Map<String, PreparedStatement> statementCache = new ConcurrentHashMap<>();
     private Cluster cluster = null;
     private Session session = null;
 
     private CassandraSession(CassandraConfig config) {
-        statementCache = new ConcurrentHashMap<>();
-        traceQuery = LOGGER.isDebugEnabled();
-
         cluster = Cluster.builder()
                 .addContactPoint(config.getHost())
                 .withPort(config.getPort())
-                .withSocketOptions(new SocketOptions().setReadTimeoutMillis(30000))
                 .build();
         session = cluster.connect();
 
@@ -43,7 +39,7 @@ public final class CassandraSession {
     public PreparedStatement getPreparedStatement(String query) {
         PreparedStatement statement = statementCache.get(query);
         if (statement == null) {
-            LOGGER.trace("Statement [{}] was not found in cache - preparing it now | Statements in cache = {}", query, statementCache.size());
+            LOGGER.debug("Statement [{}] was not found in cache - preparing it now | Statements in cache = {}", query, statementCache.size() + 1);
             statement = session.prepare(query);
             statementCache.put(query, statement);
         }
@@ -55,26 +51,20 @@ public final class CassandraSession {
     }
 
     public ResultSet executeStatement(Statement statement) {
-        if (traceQuery) statement.enableTracing();
+        if (TRACE_QUERY) statement.enableTracing();
         return withQueryTraceInfo(session.execute(statement));
     }
 
     public ResultSetFuture executeAsyncStatement(Statement statement) {
-        if (traceQuery) statement.enableTracing();
+        if (TRACE_QUERY) statement.enableTracing();
         return withCallback(session.executeAsync(statement));
     }
 
     private ResultSet withQueryTraceInfo(ResultSet result) {
-        if (traceQuery) {
+        if (TRACE_QUERY) {
             QueryTrace trace = result.getExecutionInfo().getQueryTrace();
-
-            if (LOGGER.isTraceEnabled()) {
-                for (Event event : trace.getEvents()) {
-                    LOGGER.trace("{}", event);
-                }
-            }
             LOGGER.debug("Request type: {} | Coordinator used: {} | Execution took: {} microseconds",
-                    trace.getRequestType(), trace.getCoordinator(), trace.getDurationMicros());
+                    trace.getRequestType(), trace.getCoordinator().getCanonicalHostName(), trace.getDurationMicros());
         }
         return result;
     }
@@ -90,7 +80,7 @@ public final class CassandraSession {
             public void onFailure(Throwable t) {
                 LOGGER.error("Unable to execute statement", t);
             }
-        });
+        }, Executors.newCachedThreadPool());
         return future;
     }
 
