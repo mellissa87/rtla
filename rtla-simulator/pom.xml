@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.b0ch3nski</groupId>
         <artifactId>rtla</artifactId>
-        <version>${rtla.version}</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
