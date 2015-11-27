@@ -1,7 +1,8 @@
 package com.github.b0ch3nski.rtla.cassandra.dao;
 
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
-import com.github.b0ch3nski.rtla.cassandra.Table;
+
+import static com.github.b0ch3nski.rtla.cassandra.Table.DEBUG;
 
 /**
  * @author bochen
@@ -9,6 +10,6 @@ import com.github.b0ch3nski.rtla.cassandra.Table;
 public final class DebugLogDao extends SimplifiedLogGenericDao {
 
     public DebugLogDao(CassandraConfig config, long timeToLive) {
-        super(config, Table.DEBUG, timeToLive);
+        super(config, DEBUG, timeToLive);
     }
 }

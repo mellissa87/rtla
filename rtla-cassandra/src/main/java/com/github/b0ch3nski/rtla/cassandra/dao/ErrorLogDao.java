@@ -1,7 +1,8 @@
 package com.github.b0ch3nski.rtla.cassandra.dao;
 
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
-import com.github.b0ch3nski.rtla.cassandra.Table;
+
+import static com.github.b0ch3nski.rtla.cassandra.Table.ERROR;
 
 /**
  * @author bochen
@@ -9,6 +10,6 @@ import com.github.b0ch3nski.rtla.cassandra.Table;
 public final class ErrorLogDao extends SimplifiedLogGenericDao {
 
     public ErrorLogDao(CassandraConfig config, long timeToLive) {
-        super(config, Table.ERROR, timeToLive);
+        super(config, ERROR, timeToLive);
     }
 }

@@ -43,10 +43,13 @@ public abstract class BaseDao<T> {
         @Override
         public void onRemoval(RemovalNotification<String, List<T>> notification) {
             if (notification.getCause() != RemovalCause.REPLACED) {
-                flushBatch((notification.getValue() != null) ? notification.getValue() : new ArrayList<>());
+                List<T> toFlush = notification.getValue();
 
-                LOGGER.debug("Flushed batch cache | Flush cause: {} | All cached buffers: {}",
-                        getRemovalCause(notification.getCause()), batchCache.size());
+                if ((toFlush != null) && (!toFlush.isEmpty())) {
+                    flushBatch(toFlush);
+                    LOGGER.debug("Flushed batch cache | Flush cause: {} | All cached buffers: {}",
+                            getRemovalCause(notification.getCause()), batchCache.size());
+                }
             }
         }
 
@@ -55,7 +58,7 @@ public abstract class BaseDao<T> {
         }
     }
 
-    public Table getTable() {
+    public final Table getTable() {
         return table;
     }
 

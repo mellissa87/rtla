@@ -1,7 +1,8 @@
 package com.github.b0ch3nski.rtla.cassandra.dao;
 
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
-import com.github.b0ch3nski.rtla.cassandra.Table;
+
+import static com.github.b0ch3nski.rtla.cassandra.Table.TRACE;
 
 /**
  * @author bochen
@@ -9,6 +10,6 @@ import com.github.b0ch3nski.rtla.cassandra.Table;
 public final class TraceLogDao extends SimplifiedLogGenericDao {
 
     public TraceLogDao(CassandraConfig config, long timeToLive) {
-        super(config, Table.TRACE, timeToLive);
+        super(config, TRACE, timeToLive);
     }
 }

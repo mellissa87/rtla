@@ -4,6 +4,8 @@ import com.github.b0ch3nski.rtla.common.utils.Validation;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
+import java.util.Map;
+
 /**
  * @author bochen
  */
@@ -51,6 +53,16 @@ public final class CassandraConfig {
         private int port;
         private int batchSize;
         private int flushTime;
+
+        public CassandraConfigBuilder fromStormConf(Map stormConf) {
+            Map config = (Map) stormConf.get("cassandra.config");
+
+            withHost((String) config.get("cassandra.host"));
+            withPort(((Long) config.get("cassandra.port")).intValue());
+            withBatchSize(((Long) config.get("cassandra.batch.size")).intValue());
+            withFlushTime(((Long) config.get("cassandra.flush.time")).intValue());
+            return this;
+        }
 
         public CassandraConfigBuilder withHost(String host) {
             Validation.isNotNullOrEmpty(host, "host");

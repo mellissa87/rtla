@@ -7,7 +7,12 @@ config:
   topology.max.spout.pending: 10000
   topology.message.timeout.secs: 120
   topology.kryo.register:
-    - com.github.b0ch3nski.rtla.common.model.SimplifiedLog: com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogKryoSerializer
+    - com.github.b0ch3nski.rtla.common.model.SimplifiedLog: "com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogKryoSerializer"
+  cassandra.config:
+    cassandra.host: "cassandra"
+    cassandra.port: 9042
+    cassandra.batch.size: 10
+    cassandra.flush.time: 20
 
 components:
   - id: "zkHosts"
