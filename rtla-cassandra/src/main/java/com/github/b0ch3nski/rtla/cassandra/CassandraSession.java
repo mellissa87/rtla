@@ -1,6 +1,7 @@
 package com.github.b0ch3nski.rtla.cassandra;
 
 import com.datastax.driver.core.*;
+import com.datastax.driver.core.exceptions.TraceRetrievalException;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import org.slf4j.Logger;
@@ -61,11 +62,11 @@ public final class CassandraSession {
     }
 
     private ResultSet withQueryTraceInfo(ResultSet result) {
-        if (TRACE_QUERY) {
+        if (TRACE_QUERY) try {
             QueryTrace trace = result.getExecutionInfo().getQueryTrace();
             LOGGER.debug("Request type: {} | Coordinator used: {} | Execution took: {} microseconds",
                     trace.getRequestType(), trace.getCoordinator().getCanonicalHostName(), trace.getDurationMicros());
-        }
+        } catch (TraceRetrievalException ignored) { }
         return result;
     }
 
