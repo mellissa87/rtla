@@ -8,7 +8,6 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.*;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,13 +37,11 @@ public class SerializationBenchmarkTest {
     public static class BenchmarkState {
         public SimplifiedLogSerializer serializer;
         public SimplifiedLog toSerialize;
-        public List<SimplifiedLog> listToSerialize;
 
         @Setup(Level.Trial)
         public void initialize() {
             serializer = new SimplifiedLogSerializer();
             toSerialize = RandomLogFactory.create();
-            listToSerialize = RandomLogFactory.create(1000);
         }
     }
 
@@ -54,18 +51,8 @@ public class SerializationBenchmarkTest {
     }
 
     @Benchmark
-    public byte[] serializeListWithCalculatedBufferSize(BenchmarkState state) {
-        return state.serializer.listToBytesWithCalculatedBufferSize(state.listToSerialize);
-    }
-
-    @Benchmark
     public byte[] serializeSingleObjectWithOutputStream(BenchmarkState state) {
         return state.serializer.toBytesWithOutputStream(state.toSerialize);
-    }
-
-    @Benchmark
-    public byte[] serializeListWithOutputStream(BenchmarkState state) {
-        return state.serializer.listToBytesWithOutputStream(state.listToSerialize);
     }
 
     @State(Scope.Benchmark)

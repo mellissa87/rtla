@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,20 +27,6 @@ public class SimplifiedLogSerializerTest {
         LOGGER.debug("Serialized: {}", DatatypeConverter.printHexBinary(serialized));
 
         SimplifiedLog deserialized = SERIALIZER.fromBytes(serialized);
-        LOGGER.debug("Deserialized: {}", deserialized);
-
-        assertThat(deserialized, is(toSerialize));
-    }
-
-    @Test
-    public void shouldSerializeAndDeserializeList() {
-        List<SimplifiedLog> toSerialize = RandomLogFactory.create(5);
-        LOGGER.debug("Original: {}", toSerialize);
-
-        byte[] serialized = SERIALIZER.listToBytes(toSerialize);
-        LOGGER.debug("Serialized: {}", DatatypeConverter.printHexBinary(serialized));
-
-        List<SimplifiedLog> deserialized = SERIALIZER.listFromBytes(serialized);
         LOGGER.debug("Deserialized: {}", deserialized);
 
         assertThat(deserialized, is(toSerialize));
