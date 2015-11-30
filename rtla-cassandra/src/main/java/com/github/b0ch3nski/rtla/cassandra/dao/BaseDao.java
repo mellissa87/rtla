@@ -3,6 +3,7 @@ package com.github.b0ch3nski.rtla.cassandra.dao;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.BatchStatement.Type;
 import com.github.b0ch3nski.rtla.cassandra.*;
+import com.github.b0ch3nski.rtla.cassandra.CassandraSession.SessionHandler;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.cache.*;
@@ -26,6 +27,7 @@ public abstract class BaseDao<T> {
     private final int batchSize;
     private final Cache<String, List<T>> batchCache;
     private final String insertQuery;
+    private SessionHandler session;
 
     BaseDao(CassandraConfig config, Table table, long timeToLive) {
         this.config = config;
@@ -58,6 +60,13 @@ public abstract class BaseDao<T> {
         }
     }
 
+    private SessionHandler getSession() {
+        if (session == null) {
+            session = CassandraSession.getInstance(config).getSessionHandler();
+        }
+        return session;
+    }
+
     public final Table getTable() {
         return table;
     }
@@ -73,19 +82,19 @@ public abstract class BaseDao<T> {
     }
 
     public final Statement getStatement(String query) {
-        return CassandraSession.getInstance(config).getStatement(query);
+        return getSession().getStatement(query);
     }
 
     public final PreparedStatement getPreparedStatement(String query) {
-        return CassandraSession.getInstance(config).getPreparedStatement(query);
+        return getSession().getPreparedStatement(query);
     }
 
     public final ResultSet executeStatement(Statement statement) {
-        return CassandraSession.getInstance(config).executeStatement(statement);
+        return getSession().executeStatement(statement);
     }
 
     public final ResultSetFuture executeAsyncStatement(Statement statement) {
-        return CassandraSession.getInstance(config).executeAsyncStatement(statement);
+        return getSession().executeAsyncStatement(statement);
     }
 
     private void flushBatch(List<T> toFlush) {

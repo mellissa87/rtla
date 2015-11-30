@@ -28,8 +28,14 @@ public final class ElasticsearchSession {
         LOGGER.debug("New Elasticsearch session was created with settings = {}", node.settings().getAsMap());
     }
 
-    public static synchronized ElasticsearchSession getInstance(Settings settings) {
-        if (instance == null) instance = new ElasticsearchSession(settings);
+    public static ElasticsearchSession getInstance(Settings settings) {
+        if (instance == null) {
+            synchronized (ElasticsearchSession.class) {
+                if (instance == null) {
+                    instance = new ElasticsearchSession(settings);
+                }
+            }
+        }
         return instance;
     }
 
