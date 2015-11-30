@@ -20,7 +20,10 @@ public final class ElasticsearchSession {
     private ElasticsearchSession(Settings settings) {
         node = nodeBuilder()
                 .settings(settings)
-                .settings(Settings.settingsBuilder().put("http.enabled", false))
+                .settings(Settings.settingsBuilder()
+                        .put("http.enabled", false)
+                        .put("path.home", "/tmp")
+                )
                 .client(true)
                 .node();
         client = node.client();

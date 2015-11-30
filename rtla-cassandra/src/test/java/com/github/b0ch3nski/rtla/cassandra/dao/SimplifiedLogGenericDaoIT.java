@@ -20,7 +20,7 @@ import static org.hamcrest.core.Is.is;
 /**
  * @author bochen
  */
-public abstract class SimplifiedLogGenericDaoIT extends DaoIT {
+public abstract class SimplifiedLogGenericDaoIT extends CassandraDaoIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimplifiedLogGenericDaoIT.class);
     private static final int MSG_AMOUNT = 64;

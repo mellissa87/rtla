@@ -35,7 +35,7 @@ public final class GenericEsDao {
     }
 
     @VisibleForTesting
-    Class get(String index, String type, String id, Class cls) throws IOException {
+    Object get(String index, String type, String id, Class cls) throws IOException {
         GetResponse response = client.prepareGet(index, type, id).get();
         return MAPPER.readValue(response.getSourceAsBytes(), cls.getClass());
     }

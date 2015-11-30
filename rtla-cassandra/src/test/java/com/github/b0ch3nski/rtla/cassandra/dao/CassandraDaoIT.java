@@ -8,7 +8,7 @@ import org.junit.rules.ExternalResource;
 /**
  * @author bochen
  */
-public class DaoIT {
+public class CassandraDaoIT {
 
     public static final long DEFAULT_TTL = 3600L;
     private static CassandraConfig config;
@@ -18,10 +18,6 @@ public class DaoIT {
         @Override
         protected void before() throws Throwable {
             CassandraTestingHelper.launchCassandra();
-        }
-
-        @Override
-        protected void after() {
         }
     };
 
