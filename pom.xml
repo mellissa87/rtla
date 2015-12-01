@@ -63,8 +63,7 @@
         <cassandra-driver.version>3.0.0-alpha5</cassandra-driver.version>
         <kafka.version>0.8.2.2</kafka.version>
         <storm.version>0.10.0</storm.version>
-        <es.version>2.0.0</es.version>
-        <jna.version>4.1.0</jna.version>
+        <es.version>2.1.0</es.version>
 
         <!-- core libs -->
         <guava.version>18.0</guava.version>
@@ -74,7 +73,8 @@
         <metrics.version>3.1.2</metrics.version>
         <kryo.version>3.0.3</kryo.version>
         <curator.version>2.9.1</curator.version>
-        <jackson.version>2.7.0-rc1</jackson.version>
+        <jackson.version>2.5.3</jackson.version>
+        <jna.version>4.1.0</jna.version>
 
         <!-- logging stuff -->
         <slf4j.version>1.7.12</slf4j.version>
@@ -112,12 +112,6 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>${metrics.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
