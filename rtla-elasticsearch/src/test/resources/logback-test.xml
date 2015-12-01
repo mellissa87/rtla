@@ -8,9 +8,9 @@
         </encoder>
     </appender>
 
-    <logger name="com.github.b0ch3nski" level="DEBUG"/>
+    <logger name="com.github.b0ch3nski" level="TRACE"/>
 
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="consoleAppender" />
     </root>
 

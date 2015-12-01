@@ -16,7 +16,7 @@ public class CassandraDaoIT {
     @ClassRule
     public static final ExternalResource RESOURCE = new ExternalResource() {
         @Override
-        protected void before() throws Throwable {
+        protected void before() {
             CassandraTestingHelper.launchCassandra();
         }
     };

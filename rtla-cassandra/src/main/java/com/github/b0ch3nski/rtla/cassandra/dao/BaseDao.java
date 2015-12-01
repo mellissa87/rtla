@@ -29,7 +29,7 @@ public abstract class BaseDao<T> {
     private final String insertQuery;
     private SessionHandler session;
 
-    BaseDao(CassandraConfig config, Table table, long timeToLive) {
+    protected BaseDao(CassandraConfig config, Table table, long timeToLive) {
         this.config = config;
         this.table = table;
         batchSize = config.getBatchSize();
