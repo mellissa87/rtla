@@ -2,7 +2,7 @@ package com.github.b0ch3nski.rtla.cassandra.dao;
 
 import com.datastax.driver.core.*;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
-import com.github.b0ch3nski.rtla.cassandra.Table;
+import com.github.b0ch3nski.rtla.cassandra.CassandraTable;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogSerializer;
 import com.google.common.annotations.VisibleForTesting;
@@ -26,7 +26,7 @@ public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
     private static final SimplifiedLogSerializer SERIALIZER = new SimplifiedLogSerializer();
     private final Map<String, String> selectQueries;
 
-    SimplifiedLogGenericDao(CassandraConfig config, Table table, long timeToLive) {
+    protected SimplifiedLogGenericDao(CassandraConfig config, CassandraTable table, long timeToLive) {
         super(config, table, timeToLive);
 
         String keyspaceAndTable = getTable().getKeyspaceAndTable();
@@ -46,7 +46,7 @@ public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
     }
 
     @Override
-    protected String[] getColumns() {
+    protected String[] provideColumns() {
         return new String[] { HOST, TIME, LOG };
     }
 
@@ -69,12 +69,12 @@ public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
     }
 
     @VisibleForTesting
-    static List<SimplifiedLog> filterByLogger(List<SimplifiedLog> input, String loggerName) {
+    protected static List<SimplifiedLog> filterByLogger(List<SimplifiedLog> input, String loggerName) {
         return input.parallelStream().filter(log -> log.getLoggerName().equals(loggerName)).collect(Collectors.toList());
     }
 
     @VisibleForTesting
-    static List<SimplifiedLog> filterByThread(List<SimplifiedLog> input, String threadName) {
+    protected static List<SimplifiedLog> filterByThread(List<SimplifiedLog> input, String threadName) {
         return input.parallelStream().filter(log -> log.getThreadName().equals(threadName)).collect(Collectors.toList());
     }
 

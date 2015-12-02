@@ -31,7 +31,7 @@ public final class CassandraSession {
         session = cluster.connect();
         sessionHandler = new SessionHandler();
 
-        LOGGER.debug("New Cassandra session was created with config = {}", config);
+        LOGGER.info("New Cassandra session was created with config = {}", config);
     }
 
     public final class SessionHandler {
@@ -80,7 +80,7 @@ public final class CassandraSession {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    LOGGER.error("Unable to execute statement", t);
+                    LOGGER.warn("Unable to execute statement", t);
                 }
             }, Executors.newCachedThreadPool());
             return future;
@@ -107,7 +107,7 @@ public final class CassandraSession {
             instance.session.close();
             instance.cluster.close();
             instance = null;
-            LOGGER.debug("Cassandra session has been closed!");
+            LOGGER.info("Cassandra session has been closed!");
         }
     }
 }

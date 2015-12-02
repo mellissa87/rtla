@@ -33,12 +33,11 @@ public final class ElasticsearchSession {
                 .node();
         client = node.client();
 
-        if (LOGGER.isDebugEnabled()) getDebugInfo();
+        if (LOGGER.isInfoEnabled()) getInfo();
     }
 
     private String createTmpDir(String path) {
         File temp;
-
         try {
             temp = Files.createTempDirectory(path).toFile();
         } catch (IOException e) {
@@ -49,11 +48,11 @@ public final class ElasticsearchSession {
         return temp.getAbsolutePath();
     }
 
-    private void getDebugInfo() {
-        LOGGER.debug("New Elasticsearch session was created with settings = {}", node.settings().getAsMap());
+    private void getInfo() {
+        LOGGER.info("New Elasticsearch session was created with settings = {}", node.settings().getAsMap());
 
         NodesInfoRequest nodesInfo = new NodesInfoRequestBuilder(client, NodesInfoAction.INSTANCE).clear().request();
-        LOGGER.debug("Current cluster info = {}", client.admin().cluster().nodesInfo(nodesInfo).actionGet());
+        LOGGER.info("Current cluster info = {}", client.admin().cluster().nodesInfo(nodesInfo).actionGet());
     }
 
     public static ElasticsearchSession getInstance(Settings settings) {
@@ -76,7 +75,7 @@ public final class ElasticsearchSession {
             instance.client.close();
             instance.node.close();
             instance = null;
-            LOGGER.debug("Elasticsearch session has been closed!");
+            LOGGER.info("Elasticsearch session has been closed!");
         }
     }
 }

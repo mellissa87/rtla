@@ -30,7 +30,7 @@ public abstract class SimplifiedLogGenericDaoIT extends CassandraDaoIT {
     private static final Map<String, List<SimplifiedLog>> EXPECTED = new HashMap<>();
     private static SimplifiedLogGenericDao dao;
 
-    SimplifiedLogGenericDaoIT(SimplifiedLogGenericDao newDao) {
+    protected SimplifiedLogGenericDaoIT(SimplifiedLogGenericDao newDao) {
         dao = newDao;
         prepareTestData();
     }
@@ -55,12 +55,12 @@ public abstract class SimplifiedLogGenericDaoIT extends CassandraDaoIT {
         LOGGER.debug("Successfully saved {} {} messages in Cassandra", MSG_AMOUNT, level);
     }
 
-    private void waitForMessages(int count) {
+    private void waitForMessages(int expected) {
         Awaitility.await()
                 .atMost(TIMEOUT, TimeUnit.SECONDS)
                 .pollDelay(1, TimeUnit.SECONDS)
                 .pollInterval(1, TimeUnit.SECONDS)
-                .until(() -> (dao.countAllElements() == count));
+                .until(() -> (dao.countAllElements() == expected));
     }
 
     private void checkLists(List<SimplifiedLog> expected, List<SimplifiedLog> retrieved) {

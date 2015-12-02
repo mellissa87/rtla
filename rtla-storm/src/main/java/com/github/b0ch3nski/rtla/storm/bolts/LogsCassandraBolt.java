@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 
 import java.util.Map;
 
-import static com.github.b0ch3nski.rtla.cassandra.Table.*;
+import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.*;
 
 /**
  * @author bochen

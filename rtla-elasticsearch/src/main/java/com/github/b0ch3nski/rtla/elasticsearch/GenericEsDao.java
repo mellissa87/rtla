@@ -89,6 +89,7 @@ public abstract class GenericEsDao<T> {
     private XContentBuilder getMapping() {
         if (mapping == null) try {
             mapping = provideMapping();
+            if (mapping == null) throw new IllegalStateException("Got null mapping from child class");
             LOGGER.info("Got mapping for {} index = {}", indexName, mapping.string());
         } catch (IOException e) {
             throw new IllegalStateException("Couldn't create mapping", e);

@@ -5,7 +5,7 @@ import com.google.common.base.Joiner;
 /**
  * @author bochen
  */
-public enum Table {
+public enum CassandraTable {
     ERROR("rtla", "errorlogs"),
     WARN("rtla", "warnlogs"),
     INFO("rtla", "infologs"),
@@ -15,7 +15,7 @@ public enum Table {
     private final String keyspaceName;
     private final String tableName;
 
-    Table(String keyspaceName, String tableName) {
+    CassandraTable(String keyspaceName, String tableName) {
         this.keyspaceName = keyspaceName;
         this.tableName = tableName;
     }

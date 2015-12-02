@@ -23,13 +23,14 @@ public abstract class BaseDao<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseDao.class);
     private static final String CACHE_KEY_NAME = "cache";
     private final CassandraConfig config;
-    private final Table table;
+    private final CassandraTable table;
     private final int batchSize;
     private final Cache<String, List<T>> batchCache;
     private final String insertQuery;
     private SessionHandler session;
+    private String[] columns;
 
-    protected BaseDao(CassandraConfig config, Table table, long timeToLive) {
+    protected BaseDao(CassandraConfig config, CassandraTable table, long timeToLive) {
         this.config = config;
         this.table = table;
         batchSize = config.getBatchSize();
@@ -61,23 +62,29 @@ public abstract class BaseDao<T> {
     }
 
     private SessionHandler getSession() {
-        if (session == null) {
-            session = CassandraSession.getInstance(config).getSessionHandler();
-        }
+        if (session == null) session = CassandraSession.getInstance(config).getSessionHandler();
         return session;
     }
 
-    public final Table getTable() {
+    public final CassandraTable getTable() {
         return table;
     }
 
+    private String[] getColumns() {
+        if (columns == null) {
+            columns = provideColumns();
+            if (columns == null) throw new IllegalStateException("Couldn't initialize columns; got null from child class");
+        }
+        return columns;
+    }
+
     @VisibleForTesting
-    final long countAllElements() {
+    protected final long countAllElements() {
         return executeStatement(getPreparedStatement(table.getCountQuery()).bind()).one().getLong(0);
     }
 
     @VisibleForTesting
-    final void truncateTable() {
+    protected final void truncateTable() {
         executeStatement(getStatement(table.getTruncateQuery()));
     }
 
@@ -100,9 +107,8 @@ public abstract class BaseDao<T> {
     private void flushBatch(List<T> toFlush) {
         PreparedStatement insertStatement = getPreparedStatement(insertQuery);
         BatchStatement batch = new BatchStatement(Type.UNLOGGED);
-        for (T item : toFlush) {
-            batch.add(insertStatement.bind(getValuesToInsert(item)));
-        }
+
+        toFlush.forEach(item -> batch.add(insertStatement.bind(getValuesToInsert(item))));
         executeAsyncStatement(batch);
 
         LOGGER.trace("Saved batch of:\n{}", Joiner.on("\n").join(toFlush));
@@ -129,7 +135,7 @@ public abstract class BaseDao<T> {
 
     protected abstract Object[] getValuesToInsert(T item);
 
-    protected abstract String[] getColumns();
+    protected abstract String[] provideColumns();
 
     protected abstract List<T> getListFromResultSet(ResultSet result);
 
