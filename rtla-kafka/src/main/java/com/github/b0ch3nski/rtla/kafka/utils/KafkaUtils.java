@@ -1,7 +1,7 @@
 package com.github.b0ch3nski.rtla.kafka.utils;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.utils.Validation;
+import com.github.b0ch3nski.rtla.common.utils.Validators;
 import com.github.b0ch3nski.rtla.kafka.HostnamePartitioner;
 import com.github.b0ch3nski.rtla.kafka.SimplifiedLogKafkaSerializer;
 import kafka.consumer.*;
@@ -32,9 +32,9 @@ public final class KafkaUtils {
     private KafkaUtils() { }
 
     public static ConsumerConnector createConsumer(String zkConnection, String groupId, String consumerId) {
-        Validation.isNotNullOrEmpty(zkConnection, "zkConnection");
-        Validation.isNotNullOrEmpty(groupId, "groupId");
-        Validation.isNotNullOrEmpty(consumerId, "consumerId");
+        Validators.isNotNullOrEmpty(zkConnection, "zkConnection");
+        Validators.isNotNullOrEmpty(groupId, "groupId");
+        Validators.isNotNullOrEmpty(consumerId, "consumerId");
 
         Properties consumerProperties = new Properties();
         consumerProperties.put("zookeeper.connect", zkConnection);
@@ -45,8 +45,8 @@ public final class KafkaUtils {
     }
 
     public static ConsumerIterator<String, SimplifiedLog> getConsumerIterator(ConsumerConnector consumer, String topicName) {
-        Validation.isNotNull(consumer, "consumer");
-        Validation.isNotNullOrEmpty(topicName, "topicName");
+        Validators.isNotNull(consumer, "consumer");
+        Validators.isNotNullOrEmpty(topicName, "topicName");
 
         Map<String, Integer> topicCountMap = new HashMap<>();
         topicCountMap.put(topicName, 1);
@@ -57,8 +57,8 @@ public final class KafkaUtils {
     }
 
     public static Producer<String, SimplifiedLog> createProducer(String brokers, KafkaProducerType type, boolean acks) {
-        Validation.isNotNullOrEmpty(brokers, "brokers");
-        Validation.isNotNull(type, "type");
+        Validators.isNotNullOrEmpty(brokers, "brokers");
+        Validators.isNotNull(type, "type");
 
         Properties producerProperties = new Properties();
         producerProperties.putAll(COMMON_PROPS);

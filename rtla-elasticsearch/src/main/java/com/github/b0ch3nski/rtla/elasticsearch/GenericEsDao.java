@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.bulk.BulkProcessor.Listener;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.*;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
@@ -114,7 +113,11 @@ public abstract class GenericEsDao<T> {
     @VisibleForTesting
     protected final void refreshIndex() {
         LOGGER.info("Force refresh called on {} index", indexName);
-        client.admin().indices().refresh(new RefreshRequest(indexName)).actionGet();
+        client.admin().indices().prepareRefresh(indexName).execute().actionGet();
+        /*
+        client.admin().indices().prepareClearCache(indexName).execute().actionGet();
+        client.admin().indices().prepareFlush(indexName).execute().actionGet();
+        */
     }
 
     @VisibleForTesting
@@ -139,6 +142,7 @@ public abstract class GenericEsDao<T> {
         }
     }
 
+    /*
     public final IndexResponse save(T toSave) {
         IndexRequestBuilder requestBuilder = client.prepareIndex(indexName, typeName);
         byte[] json = getJsonFromObject(toSave);
@@ -147,8 +151,9 @@ public abstract class GenericEsDao<T> {
         LOGGER.trace("Object {} was saved to /{}/{} with ID = {}", toSave, response.getIndex(), response.getType(), response.getId());
         return response;
     }
+    */
 
-    public final void saveBulk(List<T> toSave) {
+    public final void save(List<T> toSave) {
         toSave.forEach(item -> {
             byte[] json = getJsonFromObject(item);
             bulkProcessor.add(new IndexRequest(indexName, typeName).source(json));
@@ -156,8 +161,8 @@ public abstract class GenericEsDao<T> {
     }
 
     @SafeVarargs
-    public final void saveBulk(T... toSave) {
-        saveBulk(Lists.newArrayList(toSave));
+    public final void save(T... toSave) {
+        save(Lists.newArrayList(toSave));
     }
 
     public final Optional<T> get(String id) {
@@ -174,8 +179,8 @@ public abstract class GenericEsDao<T> {
         return getObjectFromJson(hit.getSourceAsString().getBytes());
     }
 
-    public final List<T> search(QueryBuilder query) {
-        SearchResponse response = client.prepareSearch(indexName).setTypes(typeName).setQuery(query).execute().actionGet();
+    public final List<T> search(QueryBuilder query, int size) {
+        SearchResponse response = client.prepareSearch(indexName).setTypes(typeName).setQuery(query).setSize(size).execute().actionGet();
         SearchHits hits = response.getHits();
 
         LOGGER.trace("Search took {} milliseconds and found {} hits | Query:\n{}", response.getTookInMillis(), hits.getTotalHits(), query);

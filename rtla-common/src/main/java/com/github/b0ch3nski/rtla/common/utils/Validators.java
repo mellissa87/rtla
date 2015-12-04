@@ -9,11 +9,11 @@ import java.util.function.Predicate;
 /**
  * @author bochen
  */
-public final class Validation {
+public final class Validators {
     private static final String NOT_NULL = " cannot be null!";
     private static final String NOT_NULL_OR_EMPTY = " cannot be null or empty!";
 
-    private Validation() { }
+    private Validators() { }
 
     public static void isNotNull(Object toValidate, String varName) {
         Preconditions.checkArgument((toValidate != null), varName + NOT_NULL);

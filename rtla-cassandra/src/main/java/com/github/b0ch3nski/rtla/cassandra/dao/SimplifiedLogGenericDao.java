@@ -5,14 +5,13 @@ import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
 import com.github.b0ch3nski.rtla.cassandra.CassandraTable;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogSerializer;
-import com.google.common.annotations.VisibleForTesting;
+import com.github.b0ch3nski.rtla.common.utils.Filters;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author bochen
@@ -68,16 +67,6 @@ public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
         return SERIALIZER.fromBytes(serialized);
     }
 
-    @VisibleForTesting
-    protected static List<SimplifiedLog> filterByLogger(List<SimplifiedLog> input, String loggerName) {
-        return input.parallelStream().filter(log -> log.getLoggerName().equals(loggerName)).collect(Collectors.toList());
-    }
-
-    @VisibleForTesting
-    protected static List<SimplifiedLog> filterByThread(List<SimplifiedLog> input, String threadName) {
-        return input.parallelStream().filter(log -> log.getThreadName().equals(threadName)).collect(Collectors.toList());
-    }
-
     public final List<SimplifiedLog> getByHost(String hostName) {
         PreparedStatement statement = getPreparedStatement(selectQueries.get(HOST));
         ResultSet result = executeStatement(statement.bind(hostName));
@@ -91,14 +80,14 @@ public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
     }
 
     public final List<SimplifiedLog> getByLogger(String hostName, long startTime, long stopTime, String loggerName) {
-        return filterByLogger(getByTime(hostName, startTime, stopTime), loggerName);
+        return Filters.filterByLogger(getByTime(hostName, startTime, stopTime), loggerName);
     }
 
     public final List<SimplifiedLog> getByThread(String hostName, long startTime, long stopTime, String threadName) {
-        return filterByThread(getByTime(hostName, startTime, stopTime), threadName);
+        return Filters.filterByThread(getByTime(hostName, startTime, stopTime), threadName);
     }
 
     public final List<SimplifiedLog> getByLoggerAndThread(String hostName, long startTime, long stopTime, String loggerName, String threadName) {
-        return filterByThread(getByLogger(hostName, startTime, stopTime, loggerName), threadName);
+        return Filters.filterByThread(getByLogger(hostName, startTime, stopTime, loggerName), threadName);
     }
 }

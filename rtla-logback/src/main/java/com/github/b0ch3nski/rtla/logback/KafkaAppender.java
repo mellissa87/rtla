@@ -4,7 +4,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
-import com.github.b0ch3nski.rtla.common.utils.Validation;
+import com.github.b0ch3nski.rtla.common.utils.Validators;
 import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils;
 import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils.KafkaProducerType;
 import kafka.javaapi.producer.Producer;
@@ -55,9 +55,9 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     public void start() {
-        Validation.isNotNullOrEmpty(hostName, "host name");
-        Validation.isNotNullOrEmpty(brokers, "broker list");
-        Validation.isNotNullOrEmpty(topic, "topic name");
+        Validators.isNotNullOrEmpty(hostName, "host name");
+        Validators.isNotNullOrEmpty(brokers, "broker list");
+        Validators.isNotNullOrEmpty(topic, "topic name");
 
         producer = KafkaUtils.createProducer(brokers, KafkaProducerType.ASYNC, requireAcks);
         super.start();

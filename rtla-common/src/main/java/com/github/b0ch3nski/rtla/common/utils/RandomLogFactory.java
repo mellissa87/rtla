@@ -8,8 +8,8 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.net.InetAddresses;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author bochen
@@ -78,7 +78,7 @@ public final class RandomLogFactory {
         return create(amount, level, true);
     }
 
-    public static List<SimplifiedLog> create(int amount, Level level, boolean random) {
+    private static List<SimplifiedLog> create(int amount, Level level, boolean random) {
         Builder<SimplifiedLog> builder = ImmutableList.builder();
 
         for (int i = 0; i < amount; i++) {
@@ -95,5 +95,23 @@ public final class RandomLogFactory {
                 ((i % 4) == 0) ? THREAD1 : THREAD2,
                 ((i % 5) == 0) ? LOGGER1 : LOGGER2
         );
+    }
+
+    public static Map<String, List<SimplifiedLog>> getPreparedTestData(int msgAmount, Level level) {
+        List<SimplifiedLog> allLogs = create(msgAmount, level, false);
+        List<SimplifiedLog> host = allLogs.stream().filter(log -> log.getHostName().equals(HOST1)).collect(Collectors.toList());
+        List<SimplifiedLog> time = host.stream().filter(Validators.isTimestampAround(TIME1)).collect(Collectors.toList());
+        List<SimplifiedLog> logger = Filters.filterByLogger(time, LOGGER1);
+        List<SimplifiedLog> thread = Filters.filterByThread(time, THREAD1);
+        List<SimplifiedLog> loggerThread = Filters.filterByThread(logger, THREAD1);
+
+        Map<String, List<SimplifiedLog>> toReturn = new HashMap<>();
+        toReturn.put("all", allLogs);
+        toReturn.put("host", host);
+        toReturn.put("time", time);
+        toReturn.put("logger", logger);
+        toReturn.put("thread", thread);
+        toReturn.put("logger_thread", loggerThread);
+        return toReturn;
     }
 }

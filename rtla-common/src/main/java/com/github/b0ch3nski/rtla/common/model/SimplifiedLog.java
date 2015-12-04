@@ -1,7 +1,7 @@
 package com.github.b0ch3nski.rtla.common.model;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import com.github.b0ch3nski.rtla.common.utils.Validation;
+import com.github.b0ch3nski.rtla.common.utils.Validators;
 import com.google.common.base.Preconditions;
 
 import java.io.Serializable;
@@ -134,11 +134,11 @@ public final class SimplifiedLog implements Serializable {
         }
 
         public SimplifiedLog build() {
-            Validation.isNotNullOrEmpty(hostName, "hostName");
-            Validation.isNotNullOrEmpty(level, "level");
-            Validation.isNotNullOrEmpty(threadName, "threadName");
-            Validation.isNotNullOrEmpty(loggerName, "loggerName");
-            Validation.isNotNullOrEmpty(formattedMessage, "formattedMessage");
+            Validators.isNotNullOrEmpty(hostName, "hostName");
+            Validators.isNotNullOrEmpty(level, "level");
+            Validators.isNotNullOrEmpty(threadName, "threadName");
+            Validators.isNotNullOrEmpty(loggerName, "loggerName");
+            Validators.isNotNullOrEmpty(formattedMessage, "formattedMessage");
             return new SimplifiedLog(this);
         }
     }

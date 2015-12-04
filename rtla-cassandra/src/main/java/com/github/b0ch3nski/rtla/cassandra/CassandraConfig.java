@@ -1,6 +1,6 @@
 package com.github.b0ch3nski.rtla.cassandra;
 
-import com.github.b0ch3nski.rtla.common.utils.Validation;
+import com.github.b0ch3nski.rtla.common.utils.Validators;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
@@ -65,7 +65,7 @@ public final class CassandraConfig {
         }
 
         public CassandraConfigBuilder withHost(String host) {
-            Validation.isNotNullOrEmpty(host, "host");
+            Validators.isNotNullOrEmpty(host, "host");
             this.host = host;
             return this;
         }
