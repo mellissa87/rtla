@@ -26,16 +26,19 @@ public abstract class SimplifiedLogGenericDaoIT extends CassandraDaoIT {
     private static final int TIMEOUT = MSG_AMOUNT * 2;
     private static final long TIME_MIN = TIME1 - 10000L;
     private static final long TIME_MAX = TIME1 + 10000L;
-    private static Map<String, List<SimplifiedLog>> expected;
     private static SimplifiedLogGenericDao dao;
+    private Map<String, List<SimplifiedLog>> expectedLists;
 
     protected SimplifiedLogGenericDaoIT(SimplifiedLogGenericDao newDao) {
         dao = newDao;
+        prepareData();
+    }
 
+    private void prepareData() {
         Level level = Level.toLevel(dao.getTable().name());
-        expected = getPreparedTestData(MSG_AMOUNT, level);
+        expectedLists = getPreparedTestData(MSG_AMOUNT, level);
 
-        List<SimplifiedLog> allLogs = expected.get("all");
+        List<SimplifiedLog> allLogs = expectedLists.get("all");
         dao.save(allLogs);
 
         waitForMessages(MSG_AMOUNT);
@@ -50,54 +53,46 @@ public abstract class SimplifiedLogGenericDaoIT extends CassandraDaoIT {
                 .until(() -> (dao.countAllElements() == expected));
     }
 
-    private void checkLists(List<SimplifiedLog> expected, List<SimplifiedLog> retrieved) {
-        assertThat(retrieved.size(), is(expected.size()));
-        assertThat(retrieved.containsAll(expected), is(true));
+    private void checkLists(String expectedListName, List<SimplifiedLog> retrievedList) {
+        List<SimplifiedLog> expectedList = expectedLists.get(expectedListName);
+
+        assertThat(retrievedList.size(), is(expectedList.size()));
+        assertThat(retrievedList.containsAll(expectedList), is(true));
     }
 
     @Test
     public void shouldRetrieveLogsByHost() {
-        List<SimplifiedLog> expected = SimplifiedLogGenericDaoIT.expected.get("host");
+        List<SimplifiedLog> retrievedList = dao.getByHost(HOST1);
 
-        List<SimplifiedLog> retrieved = dao.getByHost(HOST1);
-
-        checkLists(expected, retrieved);
+        checkLists("host", retrievedList);
     }
 
     @Test
     public void shouldRetrieveLogsByTimestamp() {
-        List<SimplifiedLog> expected = SimplifiedLogGenericDaoIT.expected.get("time");
+        List<SimplifiedLog> retrievedList = dao.getByTime(HOST1, TIME_MIN, TIME_MAX);
 
-        List<SimplifiedLog> retrieved = dao.getByTime(HOST1, TIME_MIN, TIME_MAX);
-
-        checkLists(expected, retrieved);
+        checkLists("time", retrievedList);
     }
 
     @Test
     public void shouldRetrieveLogsByLogger() {
-        List<SimplifiedLog> expected = SimplifiedLogGenericDaoIT.expected.get("logger");
+        List<SimplifiedLog> retrievedList = dao.getByLogger(HOST1, TIME_MIN, TIME_MAX, LOGGER1);
 
-        List<SimplifiedLog> retrieved = dao.getByLogger(HOST1, TIME_MIN, TIME_MAX, LOGGER1);
-
-        checkLists(expected, retrieved);
+        checkLists("logger", retrievedList);
     }
 
     @Test
     public void shouldRetrieveLogsByThread() {
-        List<SimplifiedLog> expected = SimplifiedLogGenericDaoIT.expected.get("thread");
+        List<SimplifiedLog> retrievedList = dao.getByThread(HOST1, TIME_MIN, TIME_MAX, THREAD1);
 
-        List<SimplifiedLog> retrieved = dao.getByThread(HOST1, TIME_MIN, TIME_MAX, THREAD1);
-
-        checkLists(expected, retrieved);
+        checkLists("thread", retrievedList);
     }
 
     @Test
     public void shouldRetrieveLogsByLoggerAndThread() {
-        List<SimplifiedLog> expected = SimplifiedLogGenericDaoIT.expected.get("logger_thread");
+        List<SimplifiedLog> retrievedList = dao.getByLoggerAndThread(HOST1, TIME_MIN, TIME_MAX, LOGGER1, THREAD1);
 
-        List<SimplifiedLog> retrieved = dao.getByLoggerAndThread(HOST1, TIME_MIN, TIME_MAX, LOGGER1, THREAD1);
-
-        checkLists(expected, retrieved);
+        checkLists("logger_thread", retrievedList);
     }
 
     @AfterClass
