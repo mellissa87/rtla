@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
  * @author bochen
  */
 public class KafkaPipeIT {
-    private static final KafkaTestingHelper KAFKA = new KafkaTestingHelper(12181, 18888);
+    private static final EmbeddedKafka KAFKA = new EmbeddedKafka(12181, 18888);
     private static final String TOPIC = "test";
     private static final int TOPIC_PART = 1;
     private static final int MSG_AMOUNT = 5;

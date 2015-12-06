@@ -7,9 +7,9 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.INFO;
 /**
  * @author bochen
  */
-public final class InfoLogDao extends SimplifiedLogGenericDao {
+public final class InfoLogCassDao extends SimplifiedLogGenericCassDao {
 
-    public InfoLogDao(CassandraConfig config, long timeToLive) {
+    public InfoLogCassDao(CassandraConfig config, long timeToLive) {
         super(config, INFO, timeToLive);
     }
 }

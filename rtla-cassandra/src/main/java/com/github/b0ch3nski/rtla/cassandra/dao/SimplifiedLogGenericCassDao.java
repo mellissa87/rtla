@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * @author bochen
  */
-public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
+public abstract class SimplifiedLogGenericCassDao extends BaseCassDao<SimplifiedLog> {
 
     private static final String HOST = "host";
     private static final String TIME = "time";
@@ -25,7 +25,7 @@ public abstract class SimplifiedLogGenericDao extends BaseDao<SimplifiedLog> {
     private static final SimplifiedLogSerializer SERIALIZER = new SimplifiedLogSerializer();
     private final Map<String, String> selectQueries;
 
-    protected SimplifiedLogGenericDao(CassandraConfig config, CassandraTable table, long timeToLive) {
+    protected SimplifiedLogGenericCassDao(CassandraConfig config, CassandraTable table, long timeToLive) {
         super(config, table, timeToLive);
 
         String keyspaceAndTable = getTable().getKeyspaceAndTable();

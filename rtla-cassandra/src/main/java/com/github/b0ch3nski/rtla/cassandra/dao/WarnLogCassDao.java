@@ -7,9 +7,9 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.WARN;
 /**
  * @author bochen
  */
-public final class WarnLogDao extends SimplifiedLogGenericDao {
+public final class WarnLogCassDao extends SimplifiedLogGenericCassDao {
 
-    public WarnLogDao(CassandraConfig config, long timeToLive) {
+    public WarnLogCassDao(CassandraConfig config, long timeToLive) {
         super(config, WARN, timeToLive);
     }
 }

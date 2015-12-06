@@ -19,17 +19,17 @@ import static org.hamcrest.core.Is.is;
 /**
  * @author bochen
  */
-public abstract class SimplifiedLogGenericDaoIT extends CassandraDaoIT {
+public abstract class SimplifiedLogGenericCassDaoIT extends CassandraDaoIT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimplifiedLogGenericDaoIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimplifiedLogGenericCassDaoIT.class);
     private static final int MSG_AMOUNT = 64;
     private static final int TIMEOUT = MSG_AMOUNT * 2;
     private static final long TIME_MIN = TIME1 - 10000L;
     private static final long TIME_MAX = TIME1 + 10000L;
-    private static SimplifiedLogGenericDao dao;
+    private static SimplifiedLogGenericCassDao dao;
     private Map<String, List<SimplifiedLog>> expectedLists;
 
-    protected SimplifiedLogGenericDaoIT(SimplifiedLogGenericDao newDao) {
+    protected SimplifiedLogGenericCassDaoIT(SimplifiedLogGenericCassDao newDao) {
         dao = newDao;
         prepareData();
     }

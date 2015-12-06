@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author bochen
  */
-public abstract class BaseDao<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseDao.class);
+public abstract class BaseCassDao<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseCassDao.class);
     private static final String CACHE_KEY_NAME = "cache";
     private final CassandraConfig config;
     private final CassandraTable table;
@@ -30,7 +30,7 @@ public abstract class BaseDao<T> {
     private SessionHandler session;
     private String[] columns;
 
-    protected BaseDao(CassandraConfig config, CassandraTable table, long timeToLive) {
+    protected BaseCassDao(CassandraConfig config, CassandraTable table, long timeToLive) {
         this.config = config;
         this.table = table;
         batchSize = config.getBatchSize();

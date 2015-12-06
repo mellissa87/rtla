@@ -1,7 +1,8 @@
-package com.github.b0ch3nski.rtla.elasticsearch;
+package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchSession;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -28,9 +29,9 @@ import java.util.stream.StreamSupport;
 /**
  * @author bochen
  */
-public abstract class GenericEsDao<T> {
+public abstract class BaseEsDao<T> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericEsDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseEsDao.class);
     private final Class<T> classType;
     private final ObjectMapper jsonMapper;
     private final String indexName;
@@ -39,7 +40,7 @@ public abstract class GenericEsDao<T> {
     private final BulkProcessor bulkProcessor;
     private XContentBuilder mapping;
 
-    protected GenericEsDao(Settings settings, Class<T> classType, ObjectMapper jsonMapper, String indexName, String typeName) {
+    protected BaseEsDao(Settings settings, Class<T> classType, ObjectMapper jsonMapper, String indexName, String typeName) {
         this.classType = classType;
         this.jsonMapper = jsonMapper;
         this.indexName = indexName;

@@ -26,8 +26,8 @@ import java.util.concurrent.Callable;
 /**
  * @author bochen
  */
-public final class KafkaTestingHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTestingHelper.class);
+public final class EmbeddedKafka {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedKafka.class);
     private final int zkPort;
     private final int kafkaPort;
     private TestingServer zkServer;
@@ -35,7 +35,7 @@ public final class KafkaTestingHelper {
     private KafkaServerStartable kafkaServer;
     private Producer<String, SimplifiedLog> producer;
 
-    public KafkaTestingHelper(int zkPort, int kafkaPort) {
+    public EmbeddedKafka(int zkPort, int kafkaPort) {
         this.zkPort = zkPort;
         this.kafkaPort = kafkaPort;
     }

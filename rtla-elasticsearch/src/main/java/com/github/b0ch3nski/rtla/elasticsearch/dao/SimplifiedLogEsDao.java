@@ -1,4 +1,4 @@
-package com.github.b0ch3nski.rtla.elasticsearch;
+package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.serialization.JsonMapperFactory;
@@ -12,7 +12,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 /**
  * @author bochen
  */
-public final class SimplifiedLogEsDao extends GenericEsDao<SimplifiedLog> {
+public final class SimplifiedLogEsDao extends BaseEsDao<SimplifiedLog> {
 
     private static final Class<SimplifiedLog> CLASS_TYPE = SimplifiedLog.class;
     private static final String INDEX_NAME = "logs";

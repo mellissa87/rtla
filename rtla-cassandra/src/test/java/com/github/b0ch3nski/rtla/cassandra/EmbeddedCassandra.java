@@ -21,12 +21,12 @@ import java.util.List;
 /**
  * @author bochen
  */
-public final class CassandraTestingHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CassandraTestingHelper.class);
+public final class EmbeddedCassandra {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedCassandra.class);
 
-    private CassandraTestingHelper() { }
+    private EmbeddedCassandra() { }
 
-    public static void launchCassandra() {
+    public static void start() {
         try {
             LOGGER.debug("Starting embedded Cassandra...");
             EmbeddedCassandraServerHelper.startEmbeddedCassandra(300000);

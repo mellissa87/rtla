@@ -1,4 +1,4 @@
-package com.github.b0ch3nski.rtla.elasticsearch;
+package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
 import ch.qos.logback.classic.Level;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
