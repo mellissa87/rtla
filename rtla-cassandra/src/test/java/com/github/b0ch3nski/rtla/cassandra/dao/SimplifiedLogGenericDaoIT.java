@@ -56,6 +56,7 @@ public abstract class SimplifiedLogGenericDaoIT extends CassandraDaoIT {
     private void checkLists(String expectedListName, List<SimplifiedLog> retrievedList) {
         List<SimplifiedLog> expectedList = expectedLists.get(expectedListName);
 
+        LOGGER.debug("Looking for {} results [{}] | Got {}", expectedList.size(), expectedListName, retrievedList.size());
         assertThat(retrievedList.size(), is(expectedList.size()));
         assertThat(retrievedList.containsAll(expectedList), is(true));
     }

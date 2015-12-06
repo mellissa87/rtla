@@ -142,17 +142,6 @@ public abstract class GenericEsDao<T> {
         }
     }
 
-    /*
-    public final IndexResponse save(T toSave) {
-        IndexRequestBuilder requestBuilder = client.prepareIndex(indexName, typeName);
-        byte[] json = getJsonFromObject(toSave);
-
-        IndexResponse response = requestBuilder.setSource(json).execute().actionGet();
-        LOGGER.trace("Object {} was saved to /{}/{} with ID = {}", toSave, response.getIndex(), response.getType(), response.getId());
-        return response;
-    }
-    */
-
     public final void save(List<T> toSave) {
         toSave.forEach(item -> {
             byte[] json = getJsonFromObject(item);
@@ -171,8 +160,14 @@ public abstract class GenericEsDao<T> {
         if (response.isExists()) {
             byte[] json = response.getSourceAsBytes();
             return Optional.of(getObjectFromJson(json));
-        }
-        else return Optional.absent();
+        } else return Optional.absent();
+    }
+
+    private SearchHits getSearchHits(QueryBuilder query, int size) {
+        SearchResponse response = client.prepareSearch(indexName).setTypes(typeName).setQuery(query).setSize(size).execute().actionGet();
+        SearchHits hits = response.getHits();
+        LOGGER.trace("Search took {} milliseconds and found {} hits | Query:\n{}", response.getTookInMillis(), hits.getTotalHits(), query);
+        return hits;
     }
 
     private T getObjectFromSearchHit(SearchHit hit) {
@@ -180,11 +175,17 @@ public abstract class GenericEsDao<T> {
     }
 
     public final List<T> search(QueryBuilder query, int size) {
-        SearchResponse response = client.prepareSearch(indexName).setTypes(typeName).setQuery(query).setSize(size).execute().actionGet();
-        SearchHits hits = response.getHits();
+        SearchHits hits = getSearchHits(query, size);
+        return StreamSupport.stream(hits.spliterator(), false)
+                .map(this::getObjectFromSearchHit)
+                .collect(Collectors.toList());
+    }
 
-        LOGGER.trace("Search took {} milliseconds and found {} hits | Query:\n{}", response.getTookInMillis(), hits.getTotalHits(), query);
-        return StreamSupport.stream(hits.spliterator(), false).map(this::getObjectFromSearchHit).collect(Collectors.toList());
+    public final List<String> searchIds(QueryBuilder query, int size) {
+        SearchHits hits = getSearchHits(query, size);
+        return StreamSupport.stream(hits.spliterator(), false)
+                .map(SearchHit::getId)
+                .collect(Collectors.toList());
     }
 
     public final void shutdown() {

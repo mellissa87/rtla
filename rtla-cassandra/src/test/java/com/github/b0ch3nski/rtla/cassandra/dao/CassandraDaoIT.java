@@ -21,7 +21,7 @@ public class CassandraDaoIT {
         }
     };
 
-    public static CassandraConfig getConfig() {
+    protected static CassandraConfig getConfig() {
         if (config == null) {
             config = CassandraTestingHelper.getConfig();
         }
