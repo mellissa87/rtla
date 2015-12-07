@@ -13,7 +13,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.unit.*;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -47,7 +48,7 @@ public abstract class BaseEsDao<T> {
         this.typeName = typeName;
 
         client = ElasticsearchSession.getInstance(settings).getClient();
-        bulkProcessor = new BulkHandler().getBulkProcessor();
+        bulkProcessor = new BulkHandler().getBulkProcessor(settings);
         createIndex();
     }
 
@@ -67,13 +68,11 @@ public abstract class BaseEsDao<T> {
             LOGGER.warn("Bulk execution failed", failure);
         }
 
-        // TODO: make those settings configurable somehow
-        private BulkProcessor getBulkProcessor() {
+        private BulkProcessor getBulkProcessor(Settings settings) {
             return BulkProcessor.builder(client, this)
-                    .setBulkActions(10)
-                    .setBulkSize(new ByteSizeValue(1, ByteSizeUnit.MB))
-                    .setFlushInterval(TimeValue.timeValueSeconds(15))
-                    .setConcurrentRequests(1)
+                    .setBulkActions(settings.getAsInt("bulk.actions", 10))
+                    .setBulkSize(ByteSizeValue.parseBytesSizeValue(settings.get("bulk.size"), ""))
+                    .setFlushInterval(TimeValue.parseTimeValue(settings.get("flush.time"), TimeValue.timeValueMinutes(1L), ""))
                     .build();
         }
     }
@@ -114,15 +113,15 @@ public abstract class BaseEsDao<T> {
     @VisibleForTesting
     protected final void refreshIndex() {
         LOGGER.info("Force refresh called on {} index", indexName);
-        client.admin().indices().prepareRefresh(indexName).execute().actionGet();
         /*
         client.admin().indices().prepareClearCache(indexName).execute().actionGet();
         client.admin().indices().prepareFlush(indexName).execute().actionGet();
         */
+        client.admin().indices().prepareRefresh(indexName).execute().actionGet();
     }
 
     @VisibleForTesting
-    protected final void refreshBulk() {
+    protected final void flushBulk() {
         LOGGER.info("Force flush called on bulk processor");
         bulkProcessor.flush();
     }

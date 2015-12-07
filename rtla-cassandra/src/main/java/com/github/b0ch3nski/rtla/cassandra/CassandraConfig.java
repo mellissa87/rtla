@@ -1,8 +1,7 @@
 package com.github.b0ch3nski.rtla.cassandra;
 
 import com.github.b0ch3nski.rtla.common.utils.Validators;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
+import com.google.common.base.*;
 
 import java.util.Map;
 
@@ -55,6 +54,23 @@ public final class CassandraConfig {
                 .toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if ((o == null) || (getClass() != o.getClass())) return false;
+        CassandraConfig config = (CassandraConfig) o;
+        return Objects.equal(port, config.port) &&
+                Objects.equal(batchSize, config.batchSize) &&
+                Objects.equal(flushTime, config.flushTime) &&
+                Objects.equal(ttl, config.ttl) &&
+                Objects.equal(host, config.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(host, port, batchSize, flushTime, ttl);
+    }
+
     public static final class CassandraConfigBuilder {
         private String host;
         private int port;
@@ -65,45 +81,45 @@ public final class CassandraConfig {
         public CassandraConfigBuilder fromStormConf(Map stormConf) {
             Map config = (Map) stormConf.get("cassandra.config");
 
-            withHost((String) config.get("cassandra.host"));
-            withPort(((Long) config.get("cassandra.port")).intValue());
-            withBatchSize(((Long) config.get("cassandra.batch.size")).intValue());
-            withFlushTime(((Long) config.get("cassandra.flush.time")).intValue());
-            withTtl((Long) config.get("cassandra.ttl"));
+            host = (String) config.get("cassandra.host");
+            port = ((Long) config.get("cassandra.port")).intValue();
+            batchSize = ((Long) config.get("cassandra.batch.size")).intValue();
+            flushTime = ((Long) config.get("cassandra.flush.time")).intValue();
+            ttl = (Long) config.get("cassandra.ttl");
             return this;
         }
 
         public CassandraConfigBuilder withHost(String host) {
-            Validators.isNotNullOrEmpty(host, "host");
             this.host = host;
             return this;
         }
 
         public CassandraConfigBuilder withPort(int port) {
-            Preconditions.checkArgument((port > 1024) && (port < 65535), "port must be > 1024 and < 65535");
             this.port = port;
             return this;
         }
 
         public CassandraConfigBuilder withBatchSize(int batchSize) {
-            Preconditions.checkArgument(batchSize >= 0, "batchSize must be >= 0");
             this.batchSize = batchSize;
             return this;
         }
 
         public CassandraConfigBuilder withFlushTime(int flushTime) {
-            Preconditions.checkArgument(flushTime >= 0, "flushTime must be >= 0");
             this.flushTime = flushTime;
             return this;
         }
 
         public CassandraConfigBuilder withTtl(long ttl) {
-            Preconditions.checkArgument(ttl >= 60, "TTL must be >= 60 sec");
             this.ttl = ttl;
             return this;
         }
 
         public CassandraConfig build() {
+            Validators.isNotNullOrEmpty(host, "host");
+            Preconditions.checkArgument((port > 1024) && (port < 65535), "port must be > 1024 and < 65535");
+            Preconditions.checkArgument(batchSize >= 0, "batchSize must be >= 0");
+            Preconditions.checkArgument(flushTime >= 0, "flushTime must be >= 0");
+            Preconditions.checkArgument(ttl >= 60, "TTL must be >= 60 sec");
             return new CassandraConfig(this);
         }
     }

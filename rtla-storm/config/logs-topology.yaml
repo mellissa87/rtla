@@ -14,6 +14,12 @@ config:
     cassandra.batch.size: 10
     cassandra.flush.time: 20
     cassandra.ttl: 604800
+  elasticsearch.config:
+    elasticsearch.cluster: "Bochen"
+    elasticsearch.host: "es"
+    elasticsearch.bulk.actions: "10"
+    elasticsearch.bulk.size: "1mb"
+    elasticsearch.flush.time: "20s"
 
 components:
   - id: "zkHosts"
@@ -47,10 +53,21 @@ bolts:
     className: "com.github.b0ch3nski.rtla.storm.bolts.LogsCassandraBolt"
     parallelism: 4
 
+  - id: "logs-elasticsearch-bolt"
+      className: "com.github.b0ch3nski.rtla.storm.bolts.LogsElasticsearchBolt"
+      parallelism: 4
+
 streams:
   - name: "kafka --> cassandra"
     from: "logs-kafka-spout"
     to: "logs-cassandra-bolt"
+    grouping:
+      type: FIELDS
+      args: ["host"]
+
+  - name: "kafka --> elasticsearch"
+    from: "logs-kafka-spout"
+    to: "logs-elasticsearch-bolt"
     grouping:
       type: FIELDS
       args: ["host"]

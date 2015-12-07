@@ -37,7 +37,7 @@ public final class SimplifiedLogEsDaoIT extends ElasticsearchDaoIT {
 
         DAO.createIndex();
         DAO.save(allLogs);
-        DAO.refreshBulk();
+        DAO.flushBulk();
 
         QueryBuilder query = QueryBuilders.matchQuery("level", LEVEL.toString());
         waitForIndexes(query, MSG_AMOUNT);

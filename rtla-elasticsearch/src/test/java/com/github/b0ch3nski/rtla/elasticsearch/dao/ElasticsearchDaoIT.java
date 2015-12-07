@@ -1,5 +1,6 @@
 package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
+import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchConfigBuilder;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
@@ -58,9 +59,12 @@ public class ElasticsearchDaoIT {
     };
 
     protected static Settings getSettingsForDao() {
-        return Settings.settingsBuilder()
-                .put("cluster.name", CLUSTER_NAME)
-                .put("network.host", "localhost")
+        return new ElasticsearchConfigBuilder()
+                .withClusterName(CLUSTER_NAME)
+                .withHostName("localhost")
+                .withBulkActions("10")
+                .withBulkSize("1mb")
+                .withFlushTime("20s")
                 .build();
     }
 }
