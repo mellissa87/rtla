@@ -109,36 +109,36 @@ public final class SimplifiedLog implements Serializable {
         }
 
         public SimplifiedLogBuilder withHostName(String hostName) {
-            Validators.isNotNullOrEmpty(hostName, "hostName");
             this.hostName = hostName;
             return this;
         }
 
         public SimplifiedLogBuilder withLevel(String level) {
-            Validators.isNotNullOrEmpty(level, "level");
             this.level = level;
             return this;
         }
 
         public SimplifiedLogBuilder withThreadName(String threadName) {
-            Validators.isNotNullOrEmpty(threadName, "threadName");
             this.threadName = threadName;
             return this;
         }
 
         public SimplifiedLogBuilder withLoggerName(String loggerName) {
-            Validators.isNotNullOrEmpty(loggerName, "loggerName");
             this.loggerName = loggerName;
             return this;
         }
 
         public SimplifiedLogBuilder withFormattedMessage(String formattedMessage) {
-            Validators.isNotNullOrEmpty(formattedMessage, "formattedMessage");
             this.formattedMessage = formattedMessage;
             return this;
         }
 
         public SimplifiedLog build() {
+            Validators.isNotNullOrEmpty(hostName, "hostName");
+            Validators.isNotNullOrEmpty(level, "level");
+            Validators.isNotNullOrEmpty(threadName, "threadName");
+            Validators.isNotNullOrEmpty(loggerName, "loggerName");
+            Validators.isNotNullOrEmpty(formattedMessage, "formattedMessage");
             return new SimplifiedLog(this);
         }
     }
