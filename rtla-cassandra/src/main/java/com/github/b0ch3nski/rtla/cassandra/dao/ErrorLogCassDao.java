@@ -9,7 +9,7 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.ERROR;
  */
 public final class ErrorLogCassDao extends SimplifiedLogGenericCassDao {
 
-    public ErrorLogCassDao(CassandraConfig config, long timeToLive) {
-        super(config, ERROR, timeToLive);
+    public ErrorLogCassDao(CassandraConfig config) {
+        super(config, ERROR);
     }
 }

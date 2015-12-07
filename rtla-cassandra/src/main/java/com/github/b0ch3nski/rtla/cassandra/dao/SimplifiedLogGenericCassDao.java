@@ -25,8 +25,8 @@ public abstract class SimplifiedLogGenericCassDao extends BaseCassDao<Simplified
     private static final SimplifiedLogSerializer SERIALIZER = new SimplifiedLogSerializer();
     private final Map<String, String> selectQueries;
 
-    protected SimplifiedLogGenericCassDao(CassandraConfig config, CassandraTable table, long timeToLive) {
-        super(config, table, timeToLive);
+    protected SimplifiedLogGenericCassDao(CassandraConfig config, CassandraTable table) {
+        super(config, table);
 
         String keyspaceAndTable = getTable().getKeyspaceAndTable();
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
@@ -53,9 +53,7 @@ public abstract class SimplifiedLogGenericCassDao extends BaseCassDao<Simplified
     protected List<SimplifiedLog> getListFromResultSet(ResultSet result) {
         Builder<SimplifiedLog> builder = ImmutableList.builder();
 
-        for (Row single : result) {
-            builder.add(getObjectFromRow(single));
-        }
+        result.forEach(row -> builder.add(getObjectFromRow(row)));
         return builder.build();
     }
 

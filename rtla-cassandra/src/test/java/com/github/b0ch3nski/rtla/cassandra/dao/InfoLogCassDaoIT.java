@@ -6,6 +6,6 @@ package com.github.b0ch3nski.rtla.cassandra.dao;
 public final class InfoLogCassDaoIT extends SimplifiedLogGenericCassDaoIT {
 
     public InfoLogCassDaoIT() {
-        super(new InfoLogCassDao(getConfig(), DEFAULT_TTL));
+        super(new InfoLogCassDao(getConfig()));
     }
 }

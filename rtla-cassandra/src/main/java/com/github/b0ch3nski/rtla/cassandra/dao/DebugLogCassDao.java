@@ -9,7 +9,7 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.DEBUG;
  */
 public final class DebugLogCassDao extends SimplifiedLogGenericCassDao {
 
-    public DebugLogCassDao(CassandraConfig config, long timeToLive) {
-        super(config, DEBUG, timeToLive);
+    public DebugLogCassDao(CassandraConfig config) {
+        super(config, DEBUG);
     }
 }

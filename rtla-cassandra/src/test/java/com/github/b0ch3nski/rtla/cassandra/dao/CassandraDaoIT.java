@@ -10,9 +10,6 @@ import org.junit.rules.ExternalResource;
  */
 public class CassandraDaoIT {
 
-    public static final long DEFAULT_TTL = 3600L;
-    private static CassandraConfig config;
-
     @ClassRule
     public static final ExternalResource RESOURCE = new ExternalResource() {
         @Override
@@ -22,9 +19,6 @@ public class CassandraDaoIT {
     };
 
     protected static CassandraConfig getConfig() {
-        if (config == null) {
-            config = EmbeddedCassandra.getConfig();
-        }
-        return config;
+        return EmbeddedCassandra.getConfig();
     }
 }

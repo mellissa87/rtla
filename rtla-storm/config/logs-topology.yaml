@@ -13,6 +13,7 @@ config:
     cassandra.port: 9042
     cassandra.batch.size: 10
     cassandra.flush.time: 20
+    cassandra.ttl: 604800
 
 components:
   - id: "zkHosts"

@@ -9,7 +9,7 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.INFO;
  */
 public final class InfoLogCassDao extends SimplifiedLogGenericCassDao {
 
-    public InfoLogCassDao(CassandraConfig config, long timeToLive) {
-        super(config, INFO, timeToLive);
+    public InfoLogCassDao(CassandraConfig config) {
+        super(config, INFO);
     }
 }

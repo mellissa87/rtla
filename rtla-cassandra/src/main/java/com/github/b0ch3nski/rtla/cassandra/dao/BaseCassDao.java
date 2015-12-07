@@ -30,7 +30,7 @@ public abstract class BaseCassDao<T> {
     private SessionHandler session;
     private String[] columns;
 
-    protected BaseCassDao(CassandraConfig config, CassandraTable table, long timeToLive) {
+    protected BaseCassDao(CassandraConfig config, CassandraTable table) {
         this.config = config;
         this.table = table;
         batchSize = config.getBatchSize();
@@ -39,7 +39,7 @@ public abstract class BaseCassDao<T> {
                 .expireAfterAccess(config.getFlushTime(), TimeUnit.SECONDS)
                 .removalListener(new BatchCacheFlusher())
                 .build();
-        insertQuery = table.getInsertQuery(getColumns(), timeToLive);
+        insertQuery = table.getInsertQuery(getColumns(), config.getTtl());
     }
 
     private final class BatchCacheFlusher implements RemovalListener<String, List<T>> {

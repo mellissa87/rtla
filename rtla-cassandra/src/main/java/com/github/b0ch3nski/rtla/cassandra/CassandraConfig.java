@@ -14,12 +14,14 @@ public final class CassandraConfig {
     private final int port;
     private final int batchSize;
     private final int flushTime;
+    private final long ttl;
 
     private CassandraConfig(CassandraConfigBuilder builder) {
         host = builder.host;
         port = builder.port;
         batchSize = builder.batchSize;
         flushTime = builder.flushTime;
+        ttl = builder.ttl;
     }
 
     public String getHost() {
@@ -38,6 +40,10 @@ public final class CassandraConfig {
         return flushTime;
     }
 
+    public long getTtl() {
+        return ttl;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -45,6 +51,7 @@ public final class CassandraConfig {
                 .add("port", port)
                 .add("batchSize", batchSize)
                 .add("flushTime", flushTime)
+                .add("ttl", ttl)
                 .toString();
     }
 
@@ -53,6 +60,7 @@ public final class CassandraConfig {
         private int port;
         private int batchSize;
         private int flushTime;
+        private long ttl;
 
         public CassandraConfigBuilder fromStormConf(Map stormConf) {
             Map config = (Map) stormConf.get("cassandra.config");
@@ -61,6 +69,7 @@ public final class CassandraConfig {
             withPort(((Long) config.get("cassandra.port")).intValue());
             withBatchSize(((Long) config.get("cassandra.batch.size")).intValue());
             withFlushTime(((Long) config.get("cassandra.flush.time")).intValue());
+            withTtl((Long) config.get("cassandra.ttl"));
             return this;
         }
 
@@ -71,20 +80,26 @@ public final class CassandraConfig {
         }
 
         public CassandraConfigBuilder withPort(int port) {
-            Preconditions.checkArgument(((port > 1024) && (port < 65535)), "port must be > 1024 and < 65535");
+            Preconditions.checkArgument((port > 1024) && (port < 65535), "port must be > 1024 and < 65535");
             this.port = port;
             return this;
         }
 
         public CassandraConfigBuilder withBatchSize(int batchSize) {
-            Preconditions.checkArgument((batchSize >= 0), "batchSize must be >= 0");
+            Preconditions.checkArgument(batchSize >= 0, "batchSize must be >= 0");
             this.batchSize = batchSize;
             return this;
         }
 
         public CassandraConfigBuilder withFlushTime(int flushTime) {
-            Preconditions.checkArgument((flushTime >= 0), "flushTime must be >= 0");
+            Preconditions.checkArgument(flushTime >= 0, "flushTime must be >= 0");
             this.flushTime = flushTime;
+            return this;
+        }
+
+        public CassandraConfigBuilder withTtl(long ttl) {
+            Preconditions.checkArgument(ttl >= 60, "TTL must be >= 60 sec");
+            this.ttl = ttl;
             return this;
         }
 

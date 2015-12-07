@@ -9,7 +9,7 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.TRACE;
  */
 public final class TraceLogCassDao extends SimplifiedLogGenericCassDao {
 
-    public TraceLogCassDao(CassandraConfig config, long timeToLive) {
-        super(config, TRACE, timeToLive);
+    public TraceLogCassDao(CassandraConfig config) {
+        super(config, TRACE);
     }
 }

@@ -21,7 +21,6 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.*;
  */
 public class LogsCassandraBolt extends BaseBasicBolt {
 
-    private static final long TTL = 3600L;
     private Map<String, SimplifiedLogGenericCassDao> daos;
 
     @Override
@@ -30,11 +29,11 @@ public class LogsCassandraBolt extends BaseBasicBolt {
         CassandraConfig config = new CassandraConfigBuilder().fromStormConf(stormConf).build();
 
         Builder<String, SimplifiedLogGenericCassDao> builder = ImmutableMap.builder();
-        builder.put(ERROR.name(), new ErrorLogCassDao(config, TTL));
-        builder.put(WARN.name(), new WarnLogCassDao(config, TTL));
-        builder.put(INFO.name(), new InfoLogCassDao(config, TTL));
-        builder.put(DEBUG.name(), new DebugLogCassDao(config, TTL));
-        builder.put(TRACE.name(), new TraceLogCassDao(config, TTL));
+        builder.put(ERROR.name(), new ErrorLogCassDao(config));
+        builder.put(WARN.name(), new WarnLogCassDao(config));
+        builder.put(INFO.name(), new InfoLogCassDao(config));
+        builder.put(DEBUG.name(), new DebugLogCassDao(config));
+        builder.put(TRACE.name(), new TraceLogCassDao(config));
         daos = builder.build();
     }
 
@@ -51,5 +50,11 @@ public class LogsCassandraBolt extends BaseBasicBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         // final bolt - no output fields
+    }
+
+    @Override
+    public void cleanup() {
+        daos.forEach((name, dao) -> dao.shutdown());
+        super.cleanup();
     }
 }

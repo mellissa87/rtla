@@ -22,7 +22,9 @@ import java.util.List;
  * @author bochen
  */
 public final class EmbeddedCassandra {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedCassandra.class);
+    private static CassandraConfig config;
 
     private EmbeddedCassandra() { }
 
@@ -38,12 +40,16 @@ public final class EmbeddedCassandra {
     }
 
     public static CassandraConfig getConfig() {
-        return new CassandraConfigBuilder()
-                .withHost(EmbeddedCassandraServerHelper.getHost())
-                .withPort(EmbeddedCassandraServerHelper.getNativeTransportPort())
-                .withBatchSize(0)
-                .withFlushTime(5)
-                .build();
+        if (config == null) {
+            config = new CassandraConfigBuilder()
+                    .withHost(EmbeddedCassandraServerHelper.getHost())
+                    .withPort(EmbeddedCassandraServerHelper.getNativeTransportPort())
+                    .withBatchSize(0)
+                    .withFlushTime(5)
+                    .withTtl(3600L)
+                    .build();
+        }
+        return config;
     }
 
     private static class SchemaManager {
