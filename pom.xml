@@ -61,7 +61,7 @@
 
         <!-- core frameworks -->
         <cassandra-driver.version>3.0.0-alpha5</cassandra-driver.version>
-        <kafka.version>0.9.0.0</kafka.version>
+        <kafka.version>0.8.2.2</kafka.version>
         <storm.version>0.10.0</storm.version>
         <es.version>2.1.0</es.version>
 
