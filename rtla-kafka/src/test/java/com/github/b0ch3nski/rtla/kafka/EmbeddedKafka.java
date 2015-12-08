@@ -11,11 +11,13 @@ import kafka.message.MessageAndMetadata;
 import kafka.producer.KeyedMessage;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
-import kafka.utils.ZKStringSerializer$;
+import kafka.utils.ZkUtils;
 import org.I0Itec.zkclient.ZkClient;
+import org.I0Itec.zkclient.ZkConnection;
 import org.apache.curator.test.TestingServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +33,7 @@ public final class EmbeddedKafka {
     private final int zkPort;
     private final int kafkaPort;
     private TestingServer zkServer;
-    private ZkClient zkClient;
+    private ZkUtils zkUtils;
     private KafkaServerStartable kafkaServer;
     private Producer<String, SimplifiedLog> producer;
 
@@ -53,7 +55,8 @@ public final class EmbeddedKafka {
 
     public void start() throws Exception {
         zkServer = new TestingServer(zkPort, true);
-        zkClient = new ZkClient(zkServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
+        Tuple2<ZkClient, ZkConnection> zkTuple = ZkUtils.createZkClientAndConnection(zkServer.getConnectString(), 10000, 10000);
+        zkUtils = new ZkUtils(zkTuple._1(), zkTuple._2(), false);
 
         File logs = Files.createTempDirectory("kafka_tmp").toFile();
         logs.deleteOnExit();
@@ -66,7 +69,7 @@ public final class EmbeddedKafka {
     }
 
     public void createTopic(String topicName, int topicPartitions) {
-        AdminUtils.createTopic(zkClient, topicName, topicPartitions, 1, new Properties());
+        AdminUtils.createTopic(zkUtils, topicName, topicPartitions, 1, new Properties());
         LOGGER.debug("Created topic '{}' with {} partitions", topicName, topicPartitions);
     }
 
@@ -97,11 +100,11 @@ public final class EmbeddedKafka {
     }
 
     public boolean isTopicAvailable(String topicName) {
-        return AdminUtils.topicExists(zkClient, topicName);
+        return AdminUtils.topicExists(zkUtils, topicName);
     }
 
     public void stop() throws IOException {
-        if (zkClient != null) zkClient.close();
+        if (zkUtils != null) zkUtils.close();
         if (kafkaServer != null) kafkaServer.shutdown();
         if (zkServer != null) zkServer.stop();
         LOGGER.debug("Zookeeper / Kafka services stopped!");
