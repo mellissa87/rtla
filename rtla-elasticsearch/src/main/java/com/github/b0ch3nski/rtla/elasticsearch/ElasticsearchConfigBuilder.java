@@ -11,7 +11,7 @@ import java.util.Map;
 public final class ElasticsearchConfigBuilder {
 
     private String clusterName;
-    private String hostName;
+    private String unicastHosts;
     private String bulkActions;
     private String bulkSize;
     private String flushTime;
@@ -20,7 +20,7 @@ public final class ElasticsearchConfigBuilder {
         Map config = (Map) stormConf.get("elasticsearch.config");
 
         clusterName = (String) config.get("elasticsearch.cluster");
-        hostName = (String) config.get("elasticsearch.host");
+        unicastHosts = (String) config.get("elasticsearch.unicast.hosts");
         bulkActions = (String) config.get("elasticsearch.bulk.actions");
         bulkSize = (String) config.get("elasticsearch.bulk.size");
         flushTime = (String) config.get("elasticsearch.flush.time");
@@ -32,8 +32,8 @@ public final class ElasticsearchConfigBuilder {
         return this;
     }
 
-    public ElasticsearchConfigBuilder withHostName(String hostName) {
-        this.hostName = hostName;
+    public ElasticsearchConfigBuilder withUnicastHosts(String unicastHosts) {
+        this.unicastHosts = unicastHosts;
         return this;
     }
 
@@ -54,14 +54,14 @@ public final class ElasticsearchConfigBuilder {
 
     public Settings build() {
         Validators.isNotNullOrEmpty(clusterName, "clusterName");
-        Validators.isNotNullOrEmpty(hostName, "hostName");
+        Validators.isNotNullOrEmpty(unicastHosts, "unicastHosts");
         Validators.isNotNullOrEmpty(bulkActions, "bulkActions");
         Validators.isNotNullOrEmpty(bulkSize, "bulkSize");
         Validators.isNotNullOrEmpty(flushTime, "flushTime");
 
         return Settings.settingsBuilder()
                 .put("cluster.name", clusterName)
-                .put("network.host", hostName)
+                .put("discovery.zen.ping.unicast.hosts", unicastHosts)
                 .put("bulk.actions", bulkActions)
                 .put("bulk.size", bulkSize)
                 .put("flush.time", flushTime)

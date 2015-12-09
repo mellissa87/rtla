@@ -61,7 +61,7 @@ public class ElasticsearchDaoIT {
     protected static Settings getSettingsForDao() {
         return new ElasticsearchConfigBuilder()
                 .withClusterName(CLUSTER_NAME)
-                .withHostName("localhost")
+                .withUnicastHosts("localhost")
                 .withBulkActions("10")
                 .withBulkSize("1mb")
                 .withFlushTime("20s")

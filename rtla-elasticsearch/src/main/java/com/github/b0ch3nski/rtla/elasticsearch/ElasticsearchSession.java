@@ -26,8 +26,10 @@ public final class ElasticsearchSession {
         node = nodeBuilder()
                 .settings(settings)
                 .settings(Settings.settingsBuilder()
+                                .put("network.host", "0.0.0.0")
                                 .put("http.enabled", false)
                                 .put("path.home", createTmpDir("es-client"))
+                                .put("discovery.zen.ping.multicast.enabled", false)
                 )
                 .client(true)
                 .node();

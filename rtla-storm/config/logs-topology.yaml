@@ -16,7 +16,7 @@ config:
     cassandra.ttl: 604800
   elasticsearch.config:
     elasticsearch.cluster: "Bochen"
-    elasticsearch.host: "es"
+    elasticsearch.unicast.hosts: "es"
     elasticsearch.bulk.actions: "10"
     elasticsearch.bulk.size: "1mb"
     elasticsearch.flush.time: "20s"
@@ -54,8 +54,8 @@ bolts:
     parallelism: 4
 
   - id: "logs-elasticsearch-bolt"
-      className: "com.github.b0ch3nski.rtla.storm.bolts.LogsElasticsearchBolt"
-      parallelism: 4
+    className: "com.github.b0ch3nski.rtla.storm.bolts.LogsElasticsearchBolt"
+    parallelism: 4
 
 streams:
   - name: "kafka --> cassandra"
