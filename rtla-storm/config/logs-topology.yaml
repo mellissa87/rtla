@@ -11,15 +11,15 @@ config:
   cassandra.config:
     cassandra.host: "cassandra"
     cassandra.port: 9042
-    cassandra.batch.size: 10
-    cassandra.flush.time: 20
+    cassandra.batch.size: 15
+    cassandra.flush.time: 30
     cassandra.ttl: 604800
   elasticsearch.config:
     elasticsearch.cluster: "Bochen"
     elasticsearch.unicast.hosts: "es"
-    elasticsearch.bulk.actions: "10"
-    elasticsearch.bulk.size: "1mb"
-    elasticsearch.flush.time: "20s"
+    elasticsearch.bulk.actions: "200"
+    elasticsearch.bulk.size: "5mb"
+    elasticsearch.flush.time: "2m"
 
 components:
   - id: "zkHosts"
