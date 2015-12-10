@@ -4,6 +4,7 @@ import com.github.b0ch3nski.rtla.common.utils.FileUtils;
 import org.elasticsearch.action.admin.cluster.node.info.*;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,24 @@ public final class ElasticsearchSession {
 
     public Client getClient() {
         return client;
+    }
+
+    private boolean isIndexExists(String indexName) {
+        boolean isExists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
+        LOGGER.info("Index {} found = {}", indexName, isExists);
+        return isExists;
+    }
+
+    public synchronized void createIndex(String indexName, String typeName, XContentBuilder mapping) {
+        if (isIndexExists(indexName)) return;
+        LOGGER.info("Creating {} index", indexName);
+        client.admin().indices().prepareCreate(indexName).addMapping(typeName, mapping).execute().actionGet();
+    }
+
+    public synchronized void deleteIndex(String indexName) {
+        if (!isIndexExists(indexName)) return;
+        LOGGER.info("Index removal called on {} index", indexName);
+        client.admin().indices().prepareDelete(indexName).execute().actionGet();
     }
 
     public static synchronized void shutdown() {

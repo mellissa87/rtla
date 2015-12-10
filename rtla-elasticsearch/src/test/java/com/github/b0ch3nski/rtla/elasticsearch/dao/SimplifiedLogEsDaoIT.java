@@ -35,7 +35,6 @@ public final class SimplifiedLogEsDaoIT extends ElasticsearchDaoIT {
     public static void setUpBeforeClass() {
         List<SimplifiedLog> allLogs = EXPECTED.get("all");
 
-        DAO.createIndex();
         DAO.save(allLogs);
         DAO.flushBulk();
 

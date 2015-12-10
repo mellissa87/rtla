@@ -33,6 +33,7 @@ import java.util.stream.StreamSupport;
 public abstract class BaseEsDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseEsDao.class);
+    private final Settings settings;
     private final Class<T> classType;
     private final ObjectMapper jsonMapper;
     private final String indexName;
@@ -42,14 +43,15 @@ public abstract class BaseEsDao<T> {
     private XContentBuilder mapping;
 
     protected BaseEsDao(Settings settings, Class<T> classType, ObjectMapper jsonMapper, String indexName, String typeName) {
+        this.settings = settings;
         this.classType = classType;
         this.jsonMapper = jsonMapper;
         this.indexName = indexName;
         this.typeName = typeName;
 
         client = ElasticsearchSession.getInstance(settings).getClient();
-        bulkProcessor = new BulkHandler().getBulkProcessor(settings);
-        createIndex();
+        bulkProcessor = new BulkHandler().getBulkProcessor();
+        ElasticsearchSession.getInstance(settings).createIndex(indexName, typeName, getMapping());
     }
 
     private class BulkHandler implements Listener {
@@ -68,7 +70,7 @@ public abstract class BaseEsDao<T> {
             LOGGER.warn("Bulk execution failed", failure);
         }
 
-        private BulkProcessor getBulkProcessor(Settings settings) {
+        private BulkProcessor getBulkProcessor() {
             return BulkProcessor.builder(client, this)
                     .setBulkActions(settings.getAsInt("bulk.actions", 10))
                     .setBulkSize(ByteSizeValue.parseBytesSizeValue(settings.get("bulk.size"), ""))
@@ -78,12 +80,6 @@ public abstract class BaseEsDao<T> {
     }
 
     protected abstract XContentBuilder provideMapping() throws IOException;
-
-    private boolean isIndexExists() {
-        boolean isExists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
-        LOGGER.info("Index {} found = {}", indexName, isExists);
-        return isExists;
-    }
 
     private XContentBuilder getMapping() {
         if (mapping == null) try {
@@ -97,27 +93,8 @@ public abstract class BaseEsDao<T> {
     }
 
     @VisibleForTesting
-    protected final void createIndex() {
-        if (isIndexExists()) return;
-        LOGGER.info("Creating {} index", indexName);
-        client.admin().indices().prepareCreate(indexName).addMapping(typeName, getMapping()).execute().actionGet();
-    }
-
-    @VisibleForTesting
     protected final void deleteIndex() {
-        if (!isIndexExists()) return;
-        LOGGER.info("Index removal called on {} index", indexName);
-        client.admin().indices().prepareDelete(indexName).execute().actionGet();
-    }
-
-    @VisibleForTesting
-    protected final void refreshIndex() {
-        LOGGER.info("Force refresh called on {} index", indexName);
-        /*
-        client.admin().indices().prepareClearCache(indexName).execute().actionGet();
-        client.admin().indices().prepareFlush(indexName).execute().actionGet();
-        */
-        client.admin().indices().prepareRefresh(indexName).execute().actionGet();
+        ElasticsearchSession.getInstance(settings).deleteIndex(indexName);
     }
 
     @VisibleForTesting
