@@ -1,5 +1,6 @@
 package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
+import com.github.b0ch3nski.rtla.common.utils.FileUtils;
 import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchConfigBuilder;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
@@ -8,10 +9,6 @@ import org.junit.ClassRule;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 /**
  * @author bochen
@@ -39,11 +36,8 @@ public class ElasticsearchDaoIT {
         }
 
         @Override
-        protected void before() throws IOException {
-            File temp = Files.createTempDirectory("embedded-es").toFile();
-            temp.deleteOnExit();
-
-            Settings settings = getSettings(temp.getAbsolutePath());
+        protected void before() {
+            Settings settings = getSettings(FileUtils.createTmpDir("embedded-es"));
 
             node = NodeBuilder.nodeBuilder()
                     .settings(settings)

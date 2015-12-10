@@ -1,6 +1,7 @@
 package com.github.b0ch3nski.rtla.kafka;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
+import com.github.b0ch3nski.rtla.common.utils.FileUtils;
 import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils;
 import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils.KafkaProducerType;
 import kafka.admin.AdminUtils;
@@ -17,9 +18,7 @@ import org.apache.curator.test.TestingServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -40,13 +39,13 @@ public final class EmbeddedKafka {
         this.kafkaPort = kafkaPort;
     }
 
-    private Properties getServerProperties(String logsPath) {
+    private Properties getServerProperties() {
         Properties serverProperties = new Properties();
         serverProperties.put("zookeeper.connect", zkServer.getConnectString());
         serverProperties.put("broker.id", "1");
         serverProperties.put("host.name", "localhost");
         serverProperties.put("port", String.valueOf(kafkaPort));
-        serverProperties.put("log.dir", logsPath);
+        serverProperties.put("log.dir", FileUtils.createTmpDir("embedded-kafka"));
         serverProperties.put("log.flush.interval.messages", "1");
         return serverProperties;
     }
@@ -55,12 +54,7 @@ public final class EmbeddedKafka {
         zkServer = new TestingServer(zkPort, true);
         zkClient = new ZkClient(zkServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
 
-        File logs = Files.createTempDirectory("kafka_tmp").toFile();
-        logs.deleteOnExit();
-        String logsPath = logs.getAbsolutePath();
-        LOGGER.trace("Created temp log dir: {}", logsPath);
-
-        kafkaServer = new KafkaServerStartable(new KafkaConfig(getServerProperties(logsPath)));
+        kafkaServer = new KafkaServerStartable(new KafkaConfig(getServerProperties()));
         kafkaServer.startup();
         LOGGER.debug("Started Kafka server at port {}", kafkaPort);
     }
