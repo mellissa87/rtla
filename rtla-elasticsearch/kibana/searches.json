@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "Logs-View",
+    "_type": "search",
+    "_source": {
+      "title": "logs view",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "hostName",
+        "level",
+        "loggerName",
+        "formattedMessage"
+      ],
+      "sort": [
+        "timeStamp",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\n  \"index\": \"logs\",\n  \"query\": {\n    \"query_string\": {\n      \"query\": \"*\",\n      \"analyze_wildcard\": true\n    }\n  },\n  \"filter\": [],\n  \"highlight\": {\n    \"pre_tags\": [\n      \"@kibana-highlighted-field@\"\n    ],\n    \"post_tags\": [\n      \"@/kibana-highlighted-field@\"\n    ],\n    \"fields\": {\n      \"*\": {}\n    },\n    \"require_field_match\": false,\n    \"fragment_size\": 2147483647\n  }\n}"
+      }
+    }
+  }
+]
