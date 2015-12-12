@@ -20,6 +20,7 @@ config:
     elasticsearch.bulk.actions: "200"
     elasticsearch.bulk.size: "5mb"
     elasticsearch.flush.time: "2m"
+    elasticsearch.ttl: "3d"
 
 components:
   - id: "zkHosts"

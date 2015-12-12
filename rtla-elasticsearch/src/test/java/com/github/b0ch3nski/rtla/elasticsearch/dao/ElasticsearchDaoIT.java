@@ -58,7 +58,8 @@ public class ElasticsearchDaoIT {
                 .withUnicastHosts("localhost")
                 .withBulkActions("10")
                 .withBulkSize("1mb")
-                .withFlushTime("20s")
+                .withFlushTime("30s")
+                .withTtl("30m")
                 .build();
     }
 }

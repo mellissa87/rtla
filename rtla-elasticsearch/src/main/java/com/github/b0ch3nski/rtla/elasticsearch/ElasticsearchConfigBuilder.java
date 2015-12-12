@@ -15,6 +15,7 @@ public final class ElasticsearchConfigBuilder {
     private String bulkActions;
     private String bulkSize;
     private String flushTime;
+    private String ttl;
 
     public ElasticsearchConfigBuilder fromStormConf(Map stormConf) {
         Map config = (Map) stormConf.get("elasticsearch.config");
@@ -24,6 +25,7 @@ public final class ElasticsearchConfigBuilder {
         bulkActions = (String) config.get("elasticsearch.bulk.actions");
         bulkSize = (String) config.get("elasticsearch.bulk.size");
         flushTime = (String) config.get("elasticsearch.flush.time");
+        ttl = (String) config.get("elasticsearch.ttl");
         return this;
     }
 
@@ -52,12 +54,18 @@ public final class ElasticsearchConfigBuilder {
         return this;
     }
 
+    public ElasticsearchConfigBuilder withTtl(String ttl) {
+        this.ttl = ttl;
+        return this;
+    }
+
     public Settings build() {
         Validators.isNotNullOrEmpty(clusterName, "clusterName");
         Validators.isNotNullOrEmpty(unicastHosts, "unicastHosts");
         Validators.isNotNullOrEmpty(bulkActions, "bulkActions");
         Validators.isNotNullOrEmpty(bulkSize, "bulkSize");
         Validators.isNotNullOrEmpty(flushTime, "flushTime");
+        Validators.isNotNullOrEmpty(ttl, "ttl");
 
         return Settings.settingsBuilder()
                 .put("cluster.name", clusterName)
@@ -65,6 +73,7 @@ public final class ElasticsearchConfigBuilder {
                 .put("bulk.actions", bulkActions)
                 .put("bulk.size", bulkSize)
                 .put("flush.time", flushTime)
+                .put("default.ttl", ttl)
                 .build();
     }
 }

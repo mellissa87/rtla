@@ -24,18 +24,42 @@ public final class SimplifiedLogEsDao extends BaseEsDao<SimplifiedLog> {
 
     @Override
     protected XContentBuilder provideMapping() throws IOException {
+        String ttl = settings.get("default.ttl");
+
+        // @formatter:off
         return jsonBuilder()
                 .startObject()
                     .startObject(TYPE_NAME)
+                        .field("dynamic", false)
+                        .startObject("_ttl")
+                            .field("enabled", true)
+                            .field("default", ttl)
+                        .endObject()
                         .startObject("properties")
-                            .startObject("formattedMessage").field("type", "string").endObject()
-                            .startObject("hostName").field("type", "string").endObject()
-                            .startObject("level").field("type", "string").endObject()
-                            .startObject("loggerName").field("type", "string").endObject()
-                            .startObject("threadName").field("type", "string").endObject()
-                            .startObject("timeStamp").field("type", "date").endObject()
+                            .startObject("timeStamp")
+                                .field("type", "date")
+                                .field("format", "epoch_millis")
+                            .endObject()
+                            .startObject("hostName")
+                                .field("type", "string")
+                                .field("index", "not_analyzed")
+                            .endObject()
+                            .startObject("level")
+                                .field("type", "string")
+                                .field("index", "not_analyzed")
+                            .endObject()
+                            .startObject("loggerName")
+                                .field("type", "string")
+                            .endObject()
+                            .startObject("threadName")
+                                .field("type", "string")
+                            .endObject()
+                            .startObject("formattedMessage")
+                                .field("type", "string")
+                            .endObject()
                         .endObject()
                     .endObject()
                 .endObject();
+        // @formatter:on
     }
 }

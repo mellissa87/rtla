@@ -33,7 +33,6 @@ import java.util.stream.StreamSupport;
 public abstract class BaseEsDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseEsDao.class);
-    private final Settings settings;
     private final Class<T> classType;
     private final ObjectMapper jsonMapper;
     private final String indexName;
@@ -41,6 +40,7 @@ public abstract class BaseEsDao<T> {
     private final Client client;
     private final BulkProcessor bulkProcessor;
     private XContentBuilder mapping;
+    protected final Settings settings;
 
     protected BaseEsDao(Settings settings, Class<T> classType, ObjectMapper jsonMapper, String indexName, String typeName) {
         this.settings = settings;

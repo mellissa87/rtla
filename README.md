@@ -58,7 +58,7 @@ listed above should be directly accessible (e.g. in **$PATH**).
 ### Modules
 * **rtla-cassandra**
 
-Handles data access and persistency in Cassandra.
+Handles data access and persistence in Cassandra.
 
 * **rtla-common**
 
@@ -66,7 +66,7 @@ Keeps all common code (models, serialization, utilities etc).
 
 * **rtla-elasticsearch**
 
-Handles data access and persistency in ElasticSearch.
+Handles data access and persistence in ElasticSearch.
 
 * **rtla-kafka**
 
@@ -89,6 +89,8 @@ further to Cassandra and ElasticSearch.
 
 
 ### Future plans and ideas
+* Move out from setting TTL in ElasticSearch index properties - create new index
+each day and remove old one (get TTL out of ES responsibilities scope)
 * Simple REST service to access data in Cassandra (Jackson @ Grizzly)
 * Simple JS based web UI + Websockets (SocketIO)
 * Move configuration to Apache Zookeeper
