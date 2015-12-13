@@ -9,6 +9,8 @@ import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig.CassandraConfigBuilder;
 import com.github.b0ch3nski.rtla.cassandra.dao.*;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
+import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
+import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
@@ -39,12 +41,17 @@ public class LogsCassandraBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        SimplifiedLog log = (SimplifiedLog) input.getValue(1);
+        SimplifiedLogFrame frame = (SimplifiedLogFrame) input.getValueByField("frame");
+        String level = frame.getLevel();
+        byte[] serializedLog = frame.getSimplifiedLog();
 
-        SimplifiedLogGenericCassDao dao = daos.get(log.getLevel());
+        SimplifiedLogGenericCassDao dao = daos.get(level);
+
+        // FIXME: this shouldn't be there!
+        SimplifiedLog log = SerializationHandler.fromBytesUsingKryo(serializedLog, SimplifiedLog.class);
 
         if (dao != null) dao.save(log);
-        else throw new IllegalStateException("DAO for " + log.getLevel() + " wasn't found!");
+        else throw new IllegalStateException("DAO for " + level + " wasn't found!");
     }
 
     @Override

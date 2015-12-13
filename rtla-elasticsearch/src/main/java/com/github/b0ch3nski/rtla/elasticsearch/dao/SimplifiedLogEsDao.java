@@ -1,7 +1,6 @@
 package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.serialization.JsonMapperFactory;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
@@ -19,7 +18,7 @@ public final class SimplifiedLogEsDao extends BaseEsDao<SimplifiedLog> {
     private static final String TYPE_NAME = "log";
 
     public SimplifiedLogEsDao(Settings settings) {
-        super(settings, CLASS_TYPE, JsonMapperFactory.getForSimplifiedLog(), INDEX_NAME, TYPE_NAME);
+        super(settings, CLASS_TYPE, INDEX_NAME, TYPE_NAME);
     }
 
     @Override

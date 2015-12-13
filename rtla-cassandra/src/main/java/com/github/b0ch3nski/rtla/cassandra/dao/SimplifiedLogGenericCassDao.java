@@ -4,7 +4,7 @@ import com.datastax.driver.core.*;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
 import com.github.b0ch3nski.rtla.cassandra.CassandraTable;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogSerializer;
+import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.github.b0ch3nski.rtla.common.utils.Filters;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -17,12 +17,9 @@ import java.util.*;
  * @author bochen
  */
 public abstract class SimplifiedLogGenericCassDao extends BaseCassDao<SimplifiedLog> {
-
     private static final String HOST = "host";
     private static final String TIME = "time";
     private static final String LOG = "log";
-
-    private static final SimplifiedLogSerializer SERIALIZER = new SimplifiedLogSerializer();
     private final Map<String, String> selectQueries;
 
     protected SimplifiedLogGenericCassDao(CassandraConfig config, CassandraTable table) {
@@ -40,7 +37,7 @@ public abstract class SimplifiedLogGenericCassDao extends BaseCassDao<Simplified
         return new Object[] {
                 item.getHostName(),
                 new Date(item.getTimeStamp()),
-                ByteBuffer.wrap(SERIALIZER.toBytes(item))
+                ByteBuffer.wrap(SerializationHandler.toBytesUsingKryo(item))
         };
     }
 
@@ -62,7 +59,7 @@ public abstract class SimplifiedLogGenericCassDao extends BaseCassDao<Simplified
         ByteBuffer buffer = single.getBytesUnsafe(LOG);
         byte[] serialized = new byte[buffer.remaining()];
         buffer.get(serialized);
-        return SERIALIZER.fromBytes(serialized);
+        return SerializationHandler.fromBytesUsingKryo(serialized, SimplifiedLog.class);
     }
 
     public final List<SimplifiedLog> getByHost(String hostName) {

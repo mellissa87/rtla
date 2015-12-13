@@ -27,7 +27,7 @@ public class KafkaPipeIT {
     @ClassRule
     public static final ExternalResource RESOURCE = new ExternalResource() {
         @Override
-        protected void before() throws Throwable {
+        protected void before() throws Exception {
             KAFKA.start();
             KAFKA.createTopic(TOPIC, TOPIC_PART);
         }

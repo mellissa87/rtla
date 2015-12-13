@@ -1,7 +1,6 @@
 package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchSession;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -31,10 +30,8 @@ import java.util.stream.StreamSupport;
  * @author bochen
  */
 public abstract class BaseEsDao<T> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseEsDao.class);
     private final Class<T> classType;
-    private final ObjectMapper jsonMapper;
     private final String indexName;
     private final String typeName;
     private final Client client;
@@ -42,10 +39,9 @@ public abstract class BaseEsDao<T> {
     private XContentBuilder mapping;
     protected final Settings settings;
 
-    protected BaseEsDao(Settings settings, Class<T> classType, ObjectMapper jsonMapper, String indexName, String typeName) {
+    protected BaseEsDao(Settings settings, Class<T> classType, String indexName, String typeName) {
         this.settings = settings;
         this.classType = classType;
-        this.jsonMapper = jsonMapper;
         this.indexName = indexName;
         this.typeName = typeName;
 
@@ -103,25 +99,9 @@ public abstract class BaseEsDao<T> {
         bulkProcessor.flush();
     }
 
-    private byte[] getJsonFromObject(T toJson) {
-        try {
-            return jsonMapper.writeValueAsBytes(toJson);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Couldn't serialize object of type " + classType + " to JSON", e);
-        }
-    }
-
-    private T getObjectFromJson(byte[] json) {
-        try {
-            return jsonMapper.readValue(json, classType);
-        } catch (IOException e) {
-            throw new IllegalStateException("Couldn't deserialize JSON to object of type " + classType, e);
-        }
-    }
-
     public final void save(List<T> toSave) {
         toSave.forEach(item -> {
-            byte[] json = getJsonFromObject(item);
+            byte[] json = SerializationHandler.getJsonFromObject(item);
             bulkProcessor.add(new IndexRequest(indexName, typeName).source(json));
         });
     }
@@ -136,7 +116,7 @@ public abstract class BaseEsDao<T> {
 
         if (response.isExists()) {
             byte[] json = response.getSourceAsBytes();
-            return Optional.of(getObjectFromJson(json));
+            return Optional.of(SerializationHandler.getObjectFromJson(json, classType));
         } else return Optional.absent();
     }
 
@@ -148,7 +128,7 @@ public abstract class BaseEsDao<T> {
     }
 
     private T getObjectFromSearchHit(SearchHit hit) {
-        return getObjectFromJson(hit.getSourceAsString().getBytes());
+        return SerializationHandler.getObjectFromJson(hit.getSourceAsString().getBytes(), classType);
     }
 
     public final List<T> search(QueryBuilder query, int size) {

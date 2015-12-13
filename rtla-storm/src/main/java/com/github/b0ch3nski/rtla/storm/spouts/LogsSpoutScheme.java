@@ -3,8 +3,8 @@ package com.github.b0ch3nski.rtla.storm.spouts;
 import backtype.storm.spout.MultiScheme;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogSerializer;
+import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
+import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -14,20 +14,18 @@ import java.util.List;
  */
 public class LogsSpoutScheme implements MultiScheme {
 
-    private static final SimplifiedLogSerializer SERIALIZER = new SimplifiedLogSerializer();
-
     @Override
     public Iterable<List<Object>> deserialize(byte[] ser) {
         Values values = new Values();
-        SimplifiedLog deserialized = SERIALIZER.fromBytes(ser);
+        SimplifiedLogFrame frame = SerializationHandler.fromBytesUsingKryo(ser, SimplifiedLogFrame.class);
 
-        values.add(deserialized.getHostName());
-        values.add(deserialized);
+        values.add(frame.getHostName());
+        values.add(frame);
         return ImmutableList.of(values);
     }
 
     @Override
     public Fields getOutputFields() {
-        return new Fields("host", "log");
+        return new Fields("host", "frame");
     }
 }

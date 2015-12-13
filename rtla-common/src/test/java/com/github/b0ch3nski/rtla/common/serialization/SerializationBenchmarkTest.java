@@ -35,24 +35,22 @@ public class SerializationBenchmarkTest {
 
     @State(Scope.Thread)
     public static class BenchmarkState {
-        public SimplifiedLogSerializer serializer;
         public SimplifiedLog toSerialize;
 
         @Setup(Level.Trial)
         public void initialize() {
-            serializer = new SimplifiedLogSerializer();
             toSerialize = RandomLogFactory.create();
         }
     }
 
     @Benchmark
     public byte[] serializeSingleObjectWithCalculatedBufferSize(BenchmarkState state) {
-        return state.serializer.toBytesWithCalculatedBufferSize(state.toSerialize);
+        return SerializationHandler.toBytesWithCalculatedBufferSize(state.toSerialize);
     }
 
     @Benchmark
     public byte[] serializeSingleObjectWithOutputStream(BenchmarkState state) {
-        return state.serializer.toBytesWithOutputStream(state.toSerialize);
+        return SerializationHandler.toBytesWithOutputStream(state.toSerialize);
     }
 
     @State(Scope.Benchmark)
@@ -66,7 +64,7 @@ public class SerializationBenchmarkTest {
 
         @Benchmark
         public byte[] serializeSingleObjectWithDefinedBufferSize(BenchmarkState state) {
-            return state.serializer.toBytesWithDefinedBufferSize(state.toSerialize, kryoBufferSize, maxKryoBufferSize);
+            return SerializationHandler.toBytesWithDefinedBufferSize(state.toSerialize, kryoBufferSize, maxKryoBufferSize);
         }
     }
 }

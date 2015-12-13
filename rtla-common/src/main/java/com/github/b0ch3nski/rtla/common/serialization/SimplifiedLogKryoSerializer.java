@@ -10,7 +10,7 @@ import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder
 /**
  * @author bochen
  */
-public class SimplifiedLogKryoSerializer extends Serializer<SimplifiedLog> {
+public final class SimplifiedLogKryoSerializer extends Serializer<SimplifiedLog> {
 
     public SimplifiedLogKryoSerializer() {
         super(false, false);

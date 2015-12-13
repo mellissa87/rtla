@@ -4,7 +4,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.github.b0ch3nski.rtla.common.utils.Validators;
 import com.google.common.base.Preconditions;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
@@ -12,8 +11,7 @@ import java.util.Objects;
 /**
  * @author bochen
  */
-public final class SimplifiedLog implements Serializable {
-    private static final long serialVersionUID = 5726328967486071970L;
+public final class SimplifiedLog implements ObjectSizeCountable {
     private final long timeStamp;
     private final String hostName;
     private final String level;
@@ -55,13 +53,20 @@ public final class SimplifiedLog implements Serializable {
     }
 
     @Override
+    public int getObjectSizeInBytes() {
+        return 8 // timestamp is long
+                + hostName.length()
+                + level.length()
+                + threadName.length()
+                + loggerName.length()
+                + formattedMessage.length()
+                + 1; //TODO: investigate this
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if ((obj == null) || (obj.getClass() != getClass())) {
-            return false;
-        }
-        if (obj == this) {
-            return true;
-        }
+        if ((obj == null) || (obj.getClass() != getClass())) return false;
+        if (obj == this) return true;
         SimplifiedLog that = (SimplifiedLog) obj;
         return Objects.equals(timeStamp, that.timeStamp) &&
                 Objects.equals(hostName, that.hostName) &&
