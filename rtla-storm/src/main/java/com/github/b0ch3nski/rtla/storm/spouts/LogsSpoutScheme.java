@@ -20,12 +20,19 @@ public class LogsSpoutScheme implements MultiScheme {
         SimplifiedLogFrame frame = SerializationHandler.fromBytesUsingKryo(ser, SimplifiedLogFrame.class);
 
         values.add(frame.getHostName());
-        values.add(frame);
+        values.add(frame.getTimeStamp());
+        values.add(frame.getLevel());
+        values.add(frame.getSimplifiedLog());
         return ImmutableList.of(values);
     }
 
     @Override
     public Fields getOutputFields() {
-        return new Fields("host", "frame");
+        return new Fields(
+                "host",
+                "timestamp",
+                "level",
+                "serialized-log"
+        );
     }
 }

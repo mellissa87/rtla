@@ -9,7 +9,7 @@ import java.util.Arrays;
 /**
  * @author bochen
  */
-public final class SimplifiedLogFrame implements ObjectSizeCountable {
+public final class SimplifiedLogFrame implements SerializableByKryo {
     private final long timeStamp;
     private final String hostName;
     private final String level;

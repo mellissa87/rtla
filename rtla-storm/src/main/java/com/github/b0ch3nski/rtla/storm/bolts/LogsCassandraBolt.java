@@ -9,7 +9,6 @@ import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig.CassandraConfigBuilder;
 import com.github.b0ch3nski.rtla.cassandra.dao.*;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -23,7 +22,7 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.*;
  */
 public class LogsCassandraBolt extends BaseBasicBolt {
 
-    private Map<String, SimplifiedLogGenericCassDao> daos;
+    private transient Map<String, SimplifiedLogGenericCassDao> daos;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
@@ -41,9 +40,8 @@ public class LogsCassandraBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        SimplifiedLogFrame frame = (SimplifiedLogFrame) input.getValueByField("frame");
-        String level = frame.getLevel();
-        byte[] serializedLog = frame.getSimplifiedLog();
+        String level = input.getStringByField("level");
+        byte[] serializedLog = input.getBinaryByField("serialized-log");
 
         SimplifiedLogGenericCassDao dao = daos.get(level);
 
@@ -61,7 +59,9 @@ public class LogsCassandraBolt extends BaseBasicBolt {
 
     @Override
     public void cleanup() {
-        daos.forEach((name, dao) -> dao.shutdown());
+        daos.forEach((name, dao) -> {
+            if (dao != null) dao.shutdown();
+        });
         super.cleanup();
     }
 }

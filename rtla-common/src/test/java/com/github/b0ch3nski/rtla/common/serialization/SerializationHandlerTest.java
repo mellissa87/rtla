@@ -29,7 +29,7 @@ public class SerializationHandlerTest {
         assertThat(received, is(expected));
     }
 
-    private <T extends ObjectSizeCountable> void serializeAndDeserializeUsingKryo(T toSerialize, Class<T> cls) {
+    private <T extends SerializableByKryo> void serializeAndDeserializeUsingKryo(T toSerialize, Class<T> cls) {
         byte[] serialized = SerializationHandler.toBytesUsingKryo(toSerialize);
         LOGGER.debug("Serialized {} using Kryo: {} | Size: {}",
                 cls.getSimpleName(), DatatypeConverter.printHexBinary(serialized), serialized.length);

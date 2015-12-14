@@ -6,7 +6,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Tuple;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
-import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchConfigBuilder;
 import com.github.b0ch3nski.rtla.elasticsearch.dao.SimplifiedLogEsDao;
@@ -19,7 +18,7 @@ import java.util.Map;
  */
 public class LogsElasticsearchBolt extends BaseBasicBolt {
 
-    private SimplifiedLogEsDao dao;
+    private transient SimplifiedLogEsDao dao;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
@@ -31,10 +30,9 @@ public class LogsElasticsearchBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        SimplifiedLogFrame frame = (SimplifiedLogFrame) input.getValueByField("frame");
-        byte[] serializedLog = frame.getSimplifiedLog();
-
+        byte[] serializedLog = input.getBinaryByField("serialized-log");
         SimplifiedLog log = SerializationHandler.fromBytesUsingKryo(serializedLog, SimplifiedLog.class);
+
         dao.save(log);
     }
 
@@ -45,7 +43,7 @@ public class LogsElasticsearchBolt extends BaseBasicBolt {
 
     @Override
     public void cleanup() {
-        dao.shutdown();
+        if (dao != null) dao.shutdown();
         super.cleanup();
     }
 }

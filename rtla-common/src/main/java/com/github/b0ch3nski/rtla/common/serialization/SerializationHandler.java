@@ -45,8 +45,10 @@ public final class SerializationHandler {
     }
 
     public static <T> byte[] toBytesUsingKryo(T toSerialize) {
-        if (!(toSerialize instanceof ObjectSizeCountable)) throw new IllegalArgumentException("Only ObjectSizeCountable objects are writable by Kryo");
-        return toBytesWithCalculatedBufferSize((ObjectSizeCountable) toSerialize);
+        if (!(toSerialize instanceof SerializableByKryo))
+            throw new IllegalArgumentException("Found object of class: " + toSerialize.getClass().getSimpleName()
+                    + " | Only SerializableByKryo objects are possible to serialize using this handler");
+        return toBytesWithCalculatedBufferSize((SerializableByKryo) toSerialize);
     }
 
     private static <T> byte[] writeObjectToKryo(Output output, T toSerialize) {
@@ -56,7 +58,7 @@ public final class SerializationHandler {
     }
 
     @VisibleForTesting
-    protected static byte[] toBytesWithCalculatedBufferSize(ObjectSizeCountable toSerialize) {
+    protected static byte[] toBytesWithCalculatedBufferSize(SerializableByKryo toSerialize) {
         int objectSize = toSerialize.getObjectSizeInBytes();
         LOGGER.trace("Calculated size of object of class {} is {}", toSerialize.getClass().getSimpleName(), objectSize);
 

@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * @author bochen
  */
-public final class SimplifiedLog implements ObjectSizeCountable {
+public final class SimplifiedLog implements SerializableByKryo {
     private final long timeStamp;
     private final String hostName;
     private final String level;
@@ -60,7 +60,7 @@ public final class SimplifiedLog implements ObjectSizeCountable {
                 + threadName.length()
                 + loggerName.length()
                 + formattedMessage.length()
-                + 1; //TODO: investigate this
+                + 1;
     }
 
     @Override
