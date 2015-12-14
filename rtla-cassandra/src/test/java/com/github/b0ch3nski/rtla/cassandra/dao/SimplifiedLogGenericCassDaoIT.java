@@ -98,9 +98,6 @@ public abstract class SimplifiedLogGenericCassDaoIT extends CassandraDaoIT {
 
     @AfterClass
     public static void tearDownAfterClass() {
-        if (dao != null) {
-            dao.truncateTable();
-            dao.shutdown();
-        }
+        if (dao != null) dao.truncateTable();
     }
 }

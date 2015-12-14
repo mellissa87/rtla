@@ -54,26 +54,25 @@ public final class SimplifiedLog implements SerializableByKryo {
 
     @Override
     public int getObjectSizeInBytes() {
-        return 8 // timestamp is long
+        return 9 // timestamp is long
                 + hostName.length()
                 + level.length()
                 + threadName.length()
                 + loggerName.length()
-                + formattedMessage.length()
-                + 1;
+                + formattedMessage.length();
     }
 
     @Override
     public boolean equals(Object obj) {
         if ((obj == null) || (obj.getClass() != getClass())) return false;
         if (obj == this) return true;
-        SimplifiedLog that = (SimplifiedLog) obj;
-        return Objects.equals(timeStamp, that.timeStamp) &&
-                Objects.equals(hostName, that.hostName) &&
-                Objects.equals(level, that.level) &&
-                Objects.equals(threadName, that.threadName) &&
-                Objects.equals(loggerName, that.loggerName) &&
-                Objects.equals(formattedMessage, that.formattedMessage);
+        SimplifiedLog log = (SimplifiedLog) obj;
+        return (timeStamp == log.timeStamp) &&
+                (hostName.equals(log.hostName)) &&
+                (level.equals(log.level)) &&
+                (threadName.equals(log.threadName)) &&
+                (loggerName.equals(log.loggerName)) &&
+                (formattedMessage.equals(log.formattedMessage));
     }
 
     @Override

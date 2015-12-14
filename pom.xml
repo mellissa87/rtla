@@ -68,7 +68,7 @@
         <!-- core libs -->
         <guava.version>19.0</guava.version>
         <commons-lang.version>3.4</commons-lang.version>
-        <joda-time.version>2.9</joda-time.version>
+        <!--<joda-time.version>2.9</joda-time.version>-->
         <yaml.version>1.16</yaml.version>
         <metrics.version>3.1.2</metrics.version>
         <kryo.version>3.0.3</kryo.version>
@@ -102,11 +102,13 @@
             <version>${commons-lang.version}</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -116,6 +116,5 @@ public final class SimplifiedLogEsDaoIT extends ElasticsearchDaoIT {
     @AfterClass
     public static void tearDownAfterClass() {
         DAO.deleteIndex();
-        DAO.shutdown();
     }
 }

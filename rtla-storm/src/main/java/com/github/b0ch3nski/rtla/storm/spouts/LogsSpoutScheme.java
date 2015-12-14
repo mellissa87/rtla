@@ -5,6 +5,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
+import com.github.b0ch3nski.rtla.storm.utils.FieldNames;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -29,10 +30,10 @@ public class LogsSpoutScheme implements MultiScheme {
     @Override
     public Fields getOutputFields() {
         return new Fields(
-                "host",
-                "timestamp",
-                "level",
-                "serialized-log"
+                FieldNames.HOST.toString(),
+                FieldNames.TIME.toString(),
+                FieldNames.LEVEL.toString(),
+                FieldNames.LOG.toString()
         );
     }
 }

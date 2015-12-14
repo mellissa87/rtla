@@ -16,9 +16,9 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  */
 public final class ElasticsearchSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchSession.class);
-    private static ElasticsearchSession instance = null;
-    private Node node = null;
-    private Client client = null;
+    private final Node node;
+    private final Client client;
+    private static ElasticsearchSession instance;
 
     private ElasticsearchSession(Settings settings) {
         node = nodeBuilder()
@@ -76,12 +76,9 @@ public final class ElasticsearchSession {
         client.admin().indices().prepareDelete(indexName).execute().actionGet();
     }
 
-    public static synchronized void shutdown() {
-        if (instance != null) {
-            instance.client.close();
-            instance.node.close();
-            instance = null;
-            LOGGER.info("Elasticsearch session has been closed!");
-        }
+    public void shutdown() {
+        client.close();
+        node.close();
+        LOGGER.info("Elasticsearch session has been closed!");
     }
 }

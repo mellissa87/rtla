@@ -144,8 +144,4 @@ public abstract class BaseEsDao<T> {
                 .map(SearchHit::getId)
                 .collect(Collectors.toList());
     }
-
-    public final void shutdown() {
-        ElasticsearchSession.shutdown();
-    }
 }

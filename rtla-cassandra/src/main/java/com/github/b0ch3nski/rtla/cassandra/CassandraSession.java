@@ -17,11 +17,11 @@ import java.util.concurrent.Executors;
 public final class CassandraSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(CassandraSession.class);
     private static final boolean TRACE_QUERY = LOGGER.isDebugEnabled();
-    private static CassandraSession instance = null;
     private final Map<String, PreparedStatement> statementCache = new ConcurrentHashMap<>();
-    private Cluster cluster = null;
-    private Session session = null;
-    private SessionHandler sessionHandler = null;
+    private final Cluster cluster;
+    private final Session session;
+    private final SessionHandler sessionHandler;
+    private static CassandraSession instance;
 
     private CassandraSession(CassandraConfig config) {
         cluster = Cluster.builder()
@@ -98,12 +98,9 @@ public final class CassandraSession {
         return sessionHandler;
     }
 
-    public static synchronized void shutdown() {
-        if (instance != null) {
-            instance.session.close();
-            instance.cluster.close();
-            instance = null;
-            LOGGER.info("Cassandra session has been closed!");
-        }
+    public void shutdown() {
+        session.close();
+        cluster.close();
+        LOGGER.info("Cassandra session has been closed!");
     }
 }

@@ -1,7 +1,8 @@
 package com.github.b0ch3nski.rtla.simulator.utils;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+
+import java.util.Objects;
 
 /**
  * @author bochen
@@ -48,14 +49,14 @@ public final class SimulatorConfig {
     public boolean equals(Object o) {
         if (this == o) return true;
         if ((o == null) || (getClass() != o.getClass())) return false;
-        SimulatorConfig that = (SimulatorConfig) o;
-        return Objects.equal(delay, that.delay) &&
-                Objects.equal(loops, that.loops) &&
-                Objects.equal(inputDir, that.inputDir);
+        SimulatorConfig config = (SimulatorConfig) o;
+        return (delay == config.delay) &&
+                (loops == config.loops) &&
+                (inputDir.equals(config.inputDir));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(inputDir, delay, loops);
+        return Objects.hash(inputDir, delay, loops);
     }
 }

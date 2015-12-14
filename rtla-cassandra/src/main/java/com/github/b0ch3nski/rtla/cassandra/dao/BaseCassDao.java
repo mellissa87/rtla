@@ -125,10 +125,6 @@ public abstract class BaseCassDao<T> {
         save(Lists.newArrayList(items));
     }
 
-    public final void shutdown() {
-        CassandraSession.shutdown();
-    }
-
     protected abstract Object[] getValuesToInsert(T item);
 
     protected abstract String[] provideColumns();

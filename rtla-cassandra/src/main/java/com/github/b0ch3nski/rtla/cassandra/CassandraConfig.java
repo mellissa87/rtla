@@ -1,9 +1,11 @@
 package com.github.b0ch3nski.rtla.cassandra;
 
 import com.github.b0ch3nski.rtla.common.utils.Validators;
-import com.google.common.base.*;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author bochen
@@ -59,16 +61,16 @@ public final class CassandraConfig {
         if (this == o) return true;
         if ((o == null) || (getClass() != o.getClass())) return false;
         CassandraConfig config = (CassandraConfig) o;
-        return Objects.equal(port, config.port) &&
-                Objects.equal(batchSize, config.batchSize) &&
-                Objects.equal(flushTime, config.flushTime) &&
-                Objects.equal(ttl, config.ttl) &&
-                Objects.equal(host, config.host);
+        return (port == config.port) &&
+                (batchSize == config.batchSize) &&
+                (flushTime == config.flushTime) &&
+                (ttl == config.ttl) &&
+                (host.equals(config.host));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(host, port, batchSize, flushTime, ttl);
+        return Objects.hash(host, port, batchSize, flushTime, ttl);
     }
 
     public static final class CassandraConfigBuilder {

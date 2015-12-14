@@ -7,9 +7,11 @@ import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Tuple;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig.CassandraConfigBuilder;
+import com.github.b0ch3nski.rtla.cassandra.CassandraSession;
 import com.github.b0ch3nski.rtla.cassandra.dao.*;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
+import com.github.b0ch3nski.rtla.storm.utils.FieldNames;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
@@ -22,12 +24,13 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.*;
  */
 public class LogsCassandraBolt extends BaseBasicBolt {
 
+    private transient CassandraConfig config;
     private transient Map<String, SimplifiedLogGenericCassDao> daos;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
         super.prepare(stormConf, context);
-        CassandraConfig config = new CassandraConfigBuilder().fromStormConf(stormConf).build();
+        config = new CassandraConfigBuilder().fromStormConf(stormConf).build();
 
         Builder<String, SimplifiedLogGenericCassDao> builder = ImmutableMap.builder();
         builder.put(ERROR.name(), new ErrorLogCassDao(config));
@@ -40,12 +43,11 @@ public class LogsCassandraBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        String level = input.getStringByField("level");
-        byte[] serializedLog = input.getBinaryByField("serialized-log");
-
+        String level = input.getStringByField(FieldNames.LEVEL.toString());
         SimplifiedLogGenericCassDao dao = daos.get(level);
 
-        // FIXME: this shouldn't be there!
+        // TODO: change this to use new fields and stop serializing/deserializing objects all the time!
+        byte[] serializedLog = input.getBinaryByField(FieldNames.LOG.toString());
         SimplifiedLog log = SerializationHandler.fromBytesUsingKryo(serializedLog, SimplifiedLog.class);
 
         if (dao != null) dao.save(log);
@@ -59,9 +61,7 @@ public class LogsCassandraBolt extends BaseBasicBolt {
 
     @Override
     public void cleanup() {
-        daos.forEach((name, dao) -> {
-            if (dao != null) dao.shutdown();
-        });
+        CassandraSession.getInstance(config).shutdown();
         super.cleanup();
     }
 }

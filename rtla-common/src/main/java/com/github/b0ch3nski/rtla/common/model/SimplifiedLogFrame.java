@@ -2,9 +2,9 @@ package com.github.b0ch3nski.rtla.common.model;
 
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author bochen
@@ -62,15 +62,15 @@ public final class SimplifiedLogFrame implements SerializableByKryo {
         if (this == o) return true;
         if ((o == null) || (getClass() != o.getClass())) return false;
         SimplifiedLogFrame frame = (SimplifiedLogFrame) o;
-        return Objects.equal(timeStamp, frame.timeStamp) &&
-                Objects.equal(hostName, frame.hostName) &&
-                Objects.equal(level, frame.level) &&
+        return (timeStamp == frame.timeStamp) &&
+                (hostName.equals(frame.hostName)) &&
+                (level.equals(frame.level)) &&
                 Arrays.equals(simplifiedLog, frame.simplifiedLog);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(timeStamp, hostName, level, simplifiedLog);
+        return Objects.hash(timeStamp, hostName, level, simplifiedLog);
     }
 
     @Override
