@@ -6,8 +6,8 @@ config:
   topology.fall.back.on.java.serialization: false
   topology.max.spout.pending: 10000
   topology.message.timeout.secs: 120
-  topology.kryo.register:
-    - com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame: "com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogFrameKryoSerializer"
+#  topology.kryo.register:
+#    - com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame: "com.github.b0ch3nski.rtla.common.serialization.SimplifiedLogFrameKryoSerializer"
   cassandra.config:
     cassandra.host: "cassandra"
     cassandra.port: 9042
@@ -58,6 +58,10 @@ bolts:
     className: "com.github.b0ch3nski.rtla.storm.bolts.LogsElasticsearchBolt"
     parallelism: 4
 
+  - id: "logs-counter-bolt"
+    className: "com.github.b0ch3nski.rtla.storm.bolts.LogsCounterBolt"
+    parallelism: 1
+
 streams:
   - name: "kafka --> cassandra"
     from: "logs-kafka-spout"
@@ -72,3 +76,9 @@ streams:
     grouping:
       type: FIELDS
       args: ["host"]
+
+  - name: "kafka --> counter"
+    from: "logs-kafka-spout"
+    to: "logs-counter-bolt"
+    grouping:
+      type: LOCAL_OR_SHUFFLE

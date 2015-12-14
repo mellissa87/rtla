@@ -85,11 +85,7 @@ public abstract class BaseCassDao<T> {
 
     @VisibleForTesting
     protected final void truncateTable() {
-        executeStatement(getStatement(table.getTruncateQuery()));
-    }
-
-    public final Statement getStatement(String query) {
-        return getSession().getStatement(query);
+        executeStatement(new SimpleStatement(table.getTruncateQuery()));
     }
 
     public final PreparedStatement getPreparedStatement(String query) {

@@ -48,10 +48,6 @@ public final class CassandraSession {
             return statement;
         }
 
-        public Statement getStatement(String query) {
-            return session.newSimpleStatement(query);
-        }
-
         public ResultSet executeStatement(Statement statement) {
             if (TRACE_QUERY) statement.enableTracing();
             return withQueryTraceInfo(session.execute(statement));

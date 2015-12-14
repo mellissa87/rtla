@@ -60,13 +60,13 @@
         <docker.plugin.version>0.3.5</docker.plugin.version>
 
         <!-- core frameworks -->
-        <cassandra-driver.version>3.0.0-alpha5</cassandra-driver.version>
+        <cassandra-driver.version>3.0.0-beta1</cassandra-driver.version>
         <kafka.version>0.8.2.2</kafka.version>
         <storm.version>0.10.0</storm.version>
         <es.version>2.1.0</es.version>
 
         <!-- core libs -->
-        <guava.version>18.0</guava.version>
+        <guava.version>19.0</guava.version>
         <commons-lang.version>3.4</commons-lang.version>
         <joda-time.version>2.9</joda-time.version>
         <yaml.version>1.16</yaml.version>
@@ -106,12 +106,6 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>${metrics.version}</version>
         </dependency>
 
         <dependency>
