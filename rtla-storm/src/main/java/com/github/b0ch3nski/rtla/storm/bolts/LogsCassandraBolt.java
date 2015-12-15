@@ -24,13 +24,12 @@ import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.*;
  */
 public class LogsCassandraBolt extends BaseBasicBolt {
 
-    private transient CassandraConfig config;
     private transient Map<String, SimplifiedLogGenericCassDao> daos;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
         super.prepare(stormConf, context);
-        config = new CassandraConfigBuilder().fromStormConf(stormConf).build();
+        CassandraConfig config = new CassandraConfigBuilder().fromStormConf(stormConf).build();
 
         Builder<String, SimplifiedLogGenericCassDao> builder = ImmutableMap.builder();
         builder.put(ERROR.name(), new ErrorLogCassDao(config));
@@ -61,7 +60,7 @@ public class LogsCassandraBolt extends BaseBasicBolt {
 
     @Override
     public void cleanup() {
-        CassandraSession.getInstance(config).shutdown();
+        CassandraSession.shutdown();
         super.cleanup();
     }
 }

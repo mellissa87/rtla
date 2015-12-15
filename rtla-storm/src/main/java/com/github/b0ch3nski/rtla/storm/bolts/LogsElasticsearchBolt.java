@@ -20,14 +20,13 @@ import java.util.Map;
  */
 public class LogsElasticsearchBolt extends BaseBasicBolt {
 
-    private transient Settings settings;
     private transient SimplifiedLogEsDao dao;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
         super.prepare(stormConf, context);
 
-        settings = new ElasticsearchConfigBuilder().fromStormConf(stormConf).build();
+        Settings settings = new ElasticsearchConfigBuilder().fromStormConf(stormConf).build();
         dao = new SimplifiedLogEsDao(settings);
     }
 
@@ -46,7 +45,7 @@ public class LogsElasticsearchBolt extends BaseBasicBolt {
 
     @Override
     public void cleanup() {
-        ElasticsearchSession.getInstance(settings).shutdown();
+        ElasticsearchSession.shutdown();
         super.cleanup();
     }
 }

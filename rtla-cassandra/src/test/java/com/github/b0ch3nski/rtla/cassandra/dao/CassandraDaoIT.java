@@ -1,7 +1,6 @@
 package com.github.b0ch3nski.rtla.cassandra.dao;
 
-import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
-import com.github.b0ch3nski.rtla.cassandra.EmbeddedCassandra;
+import com.github.b0ch3nski.rtla.cassandra.*;
 import org.junit.ClassRule;
 import org.junit.rules.ExternalResource;
 
@@ -15,6 +14,11 @@ public class CassandraDaoIT {
         @Override
         protected void before() {
             EmbeddedCassandra.start();
+        }
+
+        @Override
+        protected void after() {
+            CassandraSession.shutdown();
         }
     };
 

@@ -76,9 +76,12 @@ public final class ElasticsearchSession {
         client.admin().indices().prepareDelete(indexName).execute().actionGet();
     }
 
-    public void shutdown() {
-        client.close();
-        node.close();
-        LOGGER.info("Elasticsearch session has been closed!");
+    public static synchronized void shutdown() {
+        if (instance != null) {
+            instance.client.close();
+            instance.node.close();
+            instance = null;
+            LOGGER.info("Elasticsearch session has been closed!");
+        }
     }
 }

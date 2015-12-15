@@ -2,6 +2,7 @@ package com.github.b0ch3nski.rtla.elasticsearch.dao;
 
 import com.github.b0ch3nski.rtla.common.utils.FileUtils;
 import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchConfigBuilder;
+import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchSession;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
@@ -48,6 +49,7 @@ public class ElasticsearchDaoIT {
 
         @Override
         protected void after() {
+            ElasticsearchSession.shutdown();
             node.close();
         }
     };

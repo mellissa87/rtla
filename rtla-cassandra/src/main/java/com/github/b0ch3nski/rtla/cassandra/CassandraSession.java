@@ -98,9 +98,12 @@ public final class CassandraSession {
         return sessionHandler;
     }
 
-    public void shutdown() {
-        session.close();
-        cluster.close();
-        LOGGER.info("Cassandra session has been closed!");
+    public static synchronized void shutdown() {
+        if (instance != null) {
+            instance.session.close();
+            instance.cluster.close();
+            instance = null;
+            LOGGER.info("Cassandra session has been closed!");
+        }
     }
 }
