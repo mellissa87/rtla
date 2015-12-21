@@ -16,19 +16,19 @@ import java.util.*;
 /**
  * @author bochen
  */
-public abstract class SimplifiedLogGenericCassDao extends BaseCassDao<SimplifiedLog> {
+public class SimplifiedLogCassDao extends BaseCassDao<SimplifiedLog> {
     private static final String HOST = "host";
     private static final String TIME = "time";
     private static final String LOG = "log";
     private final Map<String, String> selectQueries;
 
-    protected SimplifiedLogGenericCassDao(CassandraConfig config, CassandraTable table) {
+    protected SimplifiedLogCassDao(CassandraConfig config, CassandraTable table) {
         super(config, table);
 
         String keyspaceAndTable = getTable().getKeyspaceAndTable();
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-        builder.put(HOST, "SELECT * FROM " + keyspaceAndTable + " WHERE " + HOST + " = ?;");
-        builder.put(TIME, "SELECT * FROM " + keyspaceAndTable + " WHERE " + HOST + " = ? AND " + TIME + " >= ? AND " + TIME + " <= ?;");
+        builder.put(HOST, String.format("SELECT * FROM %s WHERE %s = ?;", keyspaceAndTable, HOST));
+        builder.put(TIME, String.format("SELECT * FROM %s WHERE %s = ? AND %s >= ? AND %s <= ?;", keyspaceAndTable, HOST, TIME, TIME));
         selectQueries = builder.build();
     }
 

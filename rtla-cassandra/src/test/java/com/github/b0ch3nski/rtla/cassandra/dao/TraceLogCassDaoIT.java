@@ -1,11 +1,13 @@
 package com.github.b0ch3nski.rtla.cassandra.dao;
 
+import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.TRACE;
+
 /**
  * @author bochen
  */
-public final class TraceLogCassDaoIT extends SimplifiedLogGenericCassDaoIT {
+public final class TraceLogCassDaoIT extends SimplifiedLogCassDaoIT {
 
     public TraceLogCassDaoIT() {
-        super(new TraceLogCassDao(getConfig()));
+        super(SimplifiedLogCassDaoFactory.createDaoForLevel(getConfig(), TRACE));
     }
 }

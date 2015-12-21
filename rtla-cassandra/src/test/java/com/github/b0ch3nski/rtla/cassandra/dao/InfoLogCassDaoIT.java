@@ -1,11 +1,13 @@
 package com.github.b0ch3nski.rtla.cassandra.dao;
 
+import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.INFO;
+
 /**
  * @author bochen
  */
-public final class InfoLogCassDaoIT extends SimplifiedLogGenericCassDaoIT {
+public final class InfoLogCassDaoIT extends SimplifiedLogCassDaoIT {
 
     public InfoLogCassDaoIT() {
-        super(new InfoLogCassDao(getConfig()));
+        super(SimplifiedLogCassDaoFactory.createDaoForLevel(getConfig(), INFO));
     }
 }
