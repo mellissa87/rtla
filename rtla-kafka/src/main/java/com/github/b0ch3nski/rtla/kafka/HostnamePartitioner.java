@@ -17,7 +17,7 @@ public final class HostnamePartitioner implements Partitioner {
 
     @Override
     public int partition(Object key, int numPartitions) {
-        int partition = key.hashCode() % numPartitions;
+        int partition = ((key.hashCode() % numPartitions) + numPartitions) % numPartitions;
         LOGGER.trace("Key {} goes to partition {}", key, partition);
         return partition;
     }
