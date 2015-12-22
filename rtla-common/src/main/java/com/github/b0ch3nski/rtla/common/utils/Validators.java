@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 public final class Validators {
     private static final String NOT_NULL = " cannot be null!";
     private static final String NOT_NULL_OR_EMPTY = " cannot be null or empty!";
+    private static final String GT_THAN_0 = " must be greater than zero!";
 
     private Validators() { }
 
@@ -21,6 +22,10 @@ public final class Validators {
 
     public static void isNotNullOrEmpty(String toValidate, String varName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(toValidate), varName + NOT_NULL_OR_EMPTY);
+    }
+
+    public static void isGreaterThanZero(int toValidate, String varName) {
+        Preconditions.checkArgument(toValidate > 0, varName + GT_THAN_0);
     }
 
     public static Predicate<SimplifiedLog> isTimestampAround(long expected) {

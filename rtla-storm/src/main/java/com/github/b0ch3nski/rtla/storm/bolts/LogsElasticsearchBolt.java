@@ -10,10 +10,11 @@ import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchConfigBuilder;
 import com.github.b0ch3nski.rtla.elasticsearch.ElasticsearchSession;
 import com.github.b0ch3nski.rtla.elasticsearch.dao.SimplifiedLogEsDao;
-import com.github.b0ch3nski.rtla.storm.utils.FieldNames;
 import org.elasticsearch.common.settings.Settings;
 
 import java.util.Map;
+
+import static com.github.b0ch3nski.rtla.storm.utils.FieldNames.LOG;
 
 /**
  * @author bochen
@@ -32,7 +33,7 @@ public class LogsElasticsearchBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        byte[] serializedLog = input.getBinaryByField(FieldNames.LOG.toString());
+        byte[] serializedLog = input.getBinaryByField(LOG.toString());
         SimplifiedLog log = SerializationHandler.fromBytesUsingKryo(serializedLog, SimplifiedLog.class);
 
         dao.save(log);

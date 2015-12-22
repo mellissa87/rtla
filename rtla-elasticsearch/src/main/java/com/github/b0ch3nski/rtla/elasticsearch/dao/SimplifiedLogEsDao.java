@@ -16,15 +16,15 @@ public final class SimplifiedLogEsDao extends BaseEsDao<SimplifiedLog> {
     private static final Class<SimplifiedLog> CLASS_TYPE = SimplifiedLog.class;
     private static final String INDEX_NAME = "logs";
     private static final String TYPE_NAME = "log";
+    private final String ttl;
 
     public SimplifiedLogEsDao(Settings settings) {
         super(settings, CLASS_TYPE, INDEX_NAME, TYPE_NAME);
+        ttl = settings.get("default.ttl");
     }
 
     @Override
     protected XContentBuilder provideMapping() throws IOException {
-        String ttl = settings.get("default.ttl");
-
         // @formatter:off
         return jsonBuilder()
                 .startObject()

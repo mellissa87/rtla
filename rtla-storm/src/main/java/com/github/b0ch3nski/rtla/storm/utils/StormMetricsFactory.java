@@ -8,11 +8,11 @@ import com.github.b0ch3nski.rtla.common.metrics.MetricsHandler;
 /**
  * @author bochen
  */
-public final class StormMetricsWrapper {
+public final class StormMetricsFactory {
 
-    private StormMetricsWrapper() { }
+    private StormMetricsFactory() { }
 
-    public static Meter getMeter(TopologyContext context, String... name) {
+    public static Meter createMeter(TopologyContext context, String... name) {
         String instanceId = context.getThisComponentId() + context.getThisTaskId();
         String meterName = MetricRegistry.name(instanceId, name);
 

@@ -12,9 +12,10 @@ import com.github.b0ch3nski.rtla.cassandra.dao.SimplifiedLogCassDao;
 import com.github.b0ch3nski.rtla.cassandra.dao.SimplifiedLogCassDaoFactory;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
-import com.github.b0ch3nski.rtla.storm.utils.FieldNames;
 
 import java.util.Map;
+
+import static com.github.b0ch3nski.rtla.storm.utils.FieldNames.*;
 
 /**
  * @author bochen
@@ -33,11 +34,11 @@ public class LogsCassandraBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        String level = input.getStringByField(FieldNames.LEVEL.toString());
+        String level = input.getStringByField(LEVEL.toString());
         SimplifiedLogCassDao dao = daos.get(level);
 
         // TODO: change this to use new fields and stop serializing/deserializing objects all the time!
-        byte[] serializedLog = input.getBinaryByField(FieldNames.LOG.toString());
+        byte[] serializedLog = input.getBinaryByField(LOG.toString());
         SimplifiedLog log = SerializationHandler.fromBytesUsingKryo(serializedLog, SimplifiedLog.class);
 
         if (dao != null) dao.save(log);

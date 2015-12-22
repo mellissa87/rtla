@@ -36,8 +36,8 @@ public abstract class BaseEsDao<T> {
     private final String typeName;
     private final Client client;
     private final BulkProcessor bulkProcessor;
+    private final Settings settings;
     private XContentBuilder mapping;
-    protected final Settings settings;
 
     protected BaseEsDao(Settings settings, Class<T> classType, String indexName, String typeName) {
         this.settings = settings;

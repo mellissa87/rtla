@@ -8,13 +8,14 @@ import backtype.storm.tuple.Tuple;
 import com.codahale.metrics.Meter;
 import com.github.b0ch3nski.rtla.cassandra.CassandraTable;
 import com.github.b0ch3nski.rtla.common.metrics.MetricsHandler;
-import com.github.b0ch3nski.rtla.storm.utils.FieldNames;
-import com.github.b0ch3nski.rtla.storm.utils.StormMetricsWrapper;
+import com.github.b0ch3nski.rtla.storm.utils.StormMetricsFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
 import java.util.EnumSet;
 import java.util.Map;
+
+import static com.github.b0ch3nski.rtla.storm.utils.FieldNames.LEVEL;
 
 /**
  * @author bochen
@@ -29,14 +30,14 @@ public class LogsCounterBolt extends BaseBasicBolt {
 
         Builder<String, Meter> builder = ImmutableMap.builder();
         EnumSet.allOf(CassandraTable.class).forEach(table ->
-                builder.put(table.name(), StormMetricsWrapper.getMeter(context, table.name().toLowerCase(), "logs", "count"))
+                builder.put(table.name(), StormMetricsFactory.createMeter(context, table.name().toLowerCase(), "logs", "count"))
         );
         meters = builder.build();
     }
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        String level = input.getStringByField(FieldNames.LEVEL.toString());
+        String level = input.getStringByField(LEVEL.toString());
         Meter meter = meters.get(level);
 
         if (meter != null) meter.mark();
