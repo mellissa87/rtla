@@ -5,9 +5,9 @@ package com.github.b0ch3nski.rtla.storm.utils;
  */
 public enum FieldNames {
     HOST("host"),
-    TIME("timestamp"),
     LEVEL("level"),
-    LOG("serialized-log");
+    LOG("serialized-log"),
+    FRAME("serialized-frame");
 
     private final String name;
 

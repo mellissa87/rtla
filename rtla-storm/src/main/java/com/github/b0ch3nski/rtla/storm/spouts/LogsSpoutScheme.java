@@ -17,24 +17,24 @@ import static com.github.b0ch3nski.rtla.storm.utils.FieldNames.*;
 public class LogsSpoutScheme implements MultiScheme {
 
     @Override
-    public Iterable<List<Object>> deserialize(byte[] ser) {
-        Values values = new Values();
-        SimplifiedLogFrame frame = SerializationHandler.fromBytesUsingKryo(ser, SimplifiedLogFrame.class);
+    public Iterable<List<Object>> deserialize(byte[] serializedFrame) {
+        Values outputFields = new Values();
+        SimplifiedLogFrame deserializedFrame = SerializationHandler.fromBytesUsingKryo(serializedFrame, SimplifiedLogFrame.class);
 
-        values.add(frame.getHostName());
-        values.add(frame.getTimeStamp());
-        values.add(frame.getLevel());
-        values.add(frame.getSimplifiedLog());
-        return ImmutableList.of(values);
+        outputFields.add(deserializedFrame.getHostName());
+        outputFields.add(deserializedFrame.getLevel());
+        outputFields.add(deserializedFrame.getSimplifiedLog());
+        outputFields.add(serializedFrame);
+        return ImmutableList.of(outputFields);
     }
 
     @Override
     public Fields getOutputFields() {
         return new Fields(
                 HOST.toString(),
-                TIME.toString(),
                 LEVEL.toString(),
-                LOG.toString()
+                LOG.toString(),
+                FRAME.toString()
         );
     }
 }
