@@ -89,7 +89,6 @@ further to Cassandra and ElasticSearch.
 
 
 ### Future plans and ideas
-* Fix multiple serialization / deserialization when saving logs to Cassandra
 * Move to dependency injection concept (Guice vs. Spring)
 * Move out from setting TTL in ElasticSearch index properties - create new index
 each day and remove old one (get TTL out of ES responsibilities scope)

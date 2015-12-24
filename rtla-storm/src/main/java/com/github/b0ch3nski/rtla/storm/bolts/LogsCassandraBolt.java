@@ -10,7 +10,7 @@ import com.github.b0ch3nski.rtla.cassandra.CassandraConfig.CassandraConfigBuilde
 import com.github.b0ch3nski.rtla.cassandra.CassandraSession;
 import com.github.b0ch3nski.rtla.cassandra.dao.SimplifiedLogCassDao;
 import com.github.b0ch3nski.rtla.cassandra.dao.SimplifiedLogCassDaoFactory;
-import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
+import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 
 import java.util.Map;
@@ -37,11 +37,10 @@ public class LogsCassandraBolt extends BaseBasicBolt {
         String level = input.getStringByField(LEVEL.toString());
         SimplifiedLogCassDao dao = daos.get(level);
 
-        // TODO: change this to use new fields and stop serializing/deserializing objects all the time!
-        byte[] serializedLog = input.getBinaryByField(LOG.toString());
-        SimplifiedLog log = SerializationHandler.fromBytesUsingKryo(serializedLog, SimplifiedLog.class);
+        byte[] serializedFrame = input.getBinaryByField(FRAME.toString());
+        SimplifiedLogFrame frame = SerializationHandler.fromBytesUsingKryo(serializedFrame, SimplifiedLogFrame.class);
 
-        if (dao != null) dao.save(log);
+        if (dao != null) dao.save(frame);
         else throw new IllegalStateException("DAO for " + level + " wasn't found!");
     }
 

@@ -2,6 +2,7 @@ package com.github.b0ch3nski.rtla.cassandra.dao;
 
 import ch.qos.logback.classic.Level;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
+import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
 import com.jayway.awaitility.Awaitility;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.github.b0ch3nski.rtla.common.utils.RandomLogFactory.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +40,10 @@ public abstract class SimplifiedLogCassDaoIT extends CassandraDaoIT {
         Level level = Level.toLevel(dao.getTable().name());
         expectedLists = getPreparedTestData(MSG_AMOUNT, level);
 
-        List<SimplifiedLog> allLogs = expectedLists.get("all");
+        List<SimplifiedLogFrame> allLogs = expectedLists.get("all")
+                .parallelStream()
+                .map(SimplifiedLogFrame::new)
+                .collect(Collectors.toList());
         dao.save(allLogs);
 
         waitForMessages(MSG_AMOUNT);

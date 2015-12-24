@@ -4,6 +4,7 @@ import com.datastax.driver.core.*;
 import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
 import com.github.b0ch3nski.rtla.cassandra.CassandraTable;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
+import com.github.b0ch3nski.rtla.common.model.SimplifiedLogFrame;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.github.b0ch3nski.rtla.common.utils.Filters;
 import com.google.common.collect.ImmutableList;
@@ -12,11 +13,12 @@ import com.google.common.collect.ImmutableMap;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author bochen
  */
-public class SimplifiedLogCassDao extends BaseCassDao<SimplifiedLog> {
+public class SimplifiedLogCassDao extends BaseCassDao<SimplifiedLogFrame> {
     private static final String HOST = "host";
     private static final String TIME = "time";
     private static final String LOG = "log";
@@ -33,11 +35,11 @@ public class SimplifiedLogCassDao extends BaseCassDao<SimplifiedLog> {
     }
 
     @Override
-    protected Object[] getValuesToInsert(SimplifiedLog item) {
+    protected Object[] getValuesToInsert(SimplifiedLogFrame item) {
         return new Object[] {
                 item.getHostName(),
                 new Date(item.getTimeStamp()),
-                ByteBuffer.wrap(SerializationHandler.toBytesUsingKryo(item))
+                ByteBuffer.wrap(item.getSimplifiedLog())
         };
     }
 
@@ -47,31 +49,39 @@ public class SimplifiedLogCassDao extends BaseCassDao<SimplifiedLog> {
     }
 
     @Override
-    protected List<SimplifiedLog> getListFromResultSet(ResultSet result) {
-        Builder<SimplifiedLog> builder = ImmutableList.builder();
-
+    protected List<SimplifiedLogFrame> getListFromResultSet(ResultSet result) {
+        Builder<SimplifiedLogFrame> builder = ImmutableList.builder();
         result.forEach(row -> builder.add(getObjectFromRow(row)));
         return builder.build();
     }
 
     @Override
-    protected SimplifiedLog getObjectFromRow(Row single) {
+    protected SimplifiedLogFrame getObjectFromRow(Row single) {
         ByteBuffer buffer = single.getBytesUnsafe(LOG);
         byte[] serialized = new byte[buffer.remaining()];
         buffer.get(serialized);
-        return SerializationHandler.fromBytesUsingKryo(serialized, SimplifiedLog.class);
+
+        // FIXME: this is silly...
+        return new SimplifiedLogFrame(0L, null, null, serialized);
+    }
+
+    private List<SimplifiedLog> getLogsListFromResultSet(ResultSet result) {
+        return getListFromResultSet(result)
+                .parallelStream()
+                .map(frame -> SerializationHandler.fromBytesUsingKryo(frame.getSimplifiedLog(), SimplifiedLog.class))
+                .collect(Collectors.toList());
     }
 
     public final List<SimplifiedLog> getByHost(String hostName) {
         PreparedStatement statement = getPreparedStatement(selectQueries.get(HOST));
         ResultSet result = executeStatement(statement.bind(hostName));
-        return getListFromResultSet(result);
+        return getLogsListFromResultSet(result);
     }
 
     public final List<SimplifiedLog> getByTime(String hostName, long startTime, long stopTime) {
         PreparedStatement statement = getPreparedStatement(selectQueries.get(TIME));
         ResultSet result = executeStatement(statement.bind(hostName, new Date(startTime), new Date(stopTime)));
-        return getListFromResultSet(result);
+        return getLogsListFromResultSet(result);
     }
 
     public final List<SimplifiedLog> getByLogger(String hostName, long startTime, long stopTime, String loggerName) {
