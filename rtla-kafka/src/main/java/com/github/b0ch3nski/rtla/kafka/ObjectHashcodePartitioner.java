@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 /**
  * @author bochen
  */
-public final class HostnamePartitioner implements Partitioner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HostnamePartitioner.class);
+public final class ObjectHashcodePartitioner implements Partitioner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectHashcodePartitioner.class);
 
-    public HostnamePartitioner(VerifiableProperties properties) {
+    public ObjectHashcodePartitioner(VerifiableProperties properties) {
         if (properties != null) LOGGER.trace("Creating partitioner with properties: {}", properties);
     }
 

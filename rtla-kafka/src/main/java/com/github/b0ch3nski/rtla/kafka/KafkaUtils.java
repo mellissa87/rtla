@@ -1,14 +1,13 @@
-package com.github.b0ch3nski.rtla.kafka.utils;
+package com.github.b0ch3nski.rtla.kafka;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.utils.Validators;
-import com.github.b0ch3nski.rtla.kafka.HostnamePartitioner;
-import com.github.b0ch3nski.rtla.kafka.SimplifiedLogKafkaSerializer;
 import kafka.consumer.*;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
 import kafka.serializer.StringDecoder;
+import kafka.serializer.StringEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +22,9 @@ public final class KafkaUtils {
 
     static {
         COMMON_PROPS = new Properties();
-        COMMON_PROPS.put("key.serializer.class", "kafka.serializer.StringEncoder");
+        COMMON_PROPS.put("key.serializer.class", StringEncoder.class.getName());
         COMMON_PROPS.put("serializer.class", SimplifiedLogKafkaSerializer.class.getName());
-        COMMON_PROPS.put("partitioner.class", HostnamePartitioner.class.getName());
+        COMMON_PROPS.put("partitioner.class", ObjectHashcodePartitioner.class.getName());
         COMMON_PROPS.put("compression.codec", "none");
     }
 
@@ -40,20 +39,23 @@ public final class KafkaUtils {
         consumerProperties.put("zookeeper.connect", zkConnection);
         consumerProperties.put("group.id", groupId);
         consumerProperties.put("consumer.id", consumerId);
-        LOGGER.trace("Creating consumer with properties: {}", consumerProperties);
+        LOGGER.debug("Creating consumer with properties: {}", consumerProperties);
         return Consumer.createJavaConsumerConnector(new ConsumerConfig(consumerProperties));
     }
 
-    public static ConsumerIterator<String, SimplifiedLog> getConsumerIterator(ConsumerConnector consumer, String topicName) {
+    public static List<KafkaStream<String, SimplifiedLog>> getConsumerStreams(ConsumerConnector consumer, String topicName, int streamAmount) {
         Validators.isNotNull(consumer, "consumer");
         Validators.isNotNullOrEmpty(topicName, "topicName");
+        Validators.isGreaterThanZero(streamAmount, "streamAmount");
 
         Map<String, Integer> topicCountMap = new HashMap<>();
-        topicCountMap.put(topicName, 1);
+        topicCountMap.put(topicName, streamAmount);
 
-        Map<String, List<KafkaStream<String, SimplifiedLog>>> events =
-                consumer.createMessageStreams(topicCountMap, new StringDecoder(null), new SimplifiedLogKafkaSerializer(null));
-        return events.get(topicName).get(0).iterator();
+        return consumer.createMessageStreams(
+                topicCountMap,
+                new StringDecoder(null),
+                new SimplifiedLogKafkaSerializer(null)
+        ).get(topicName);
     }
 
     public static Producer<String, SimplifiedLog> createProducer(String brokers, KafkaProducerType type, boolean acks) {
@@ -63,19 +65,24 @@ public final class KafkaUtils {
         Properties producerProperties = new Properties();
         producerProperties.putAll(COMMON_PROPS);
         producerProperties.put("metadata.broker.list", brokers);
-        producerProperties.put("producer.type", type.typeAsString);
+        producerProperties.put("producer.type", type.toString());
         producerProperties.put("request.required.acks", String.valueOf(Boolean.compare(acks, false)));
-        LOGGER.trace("Creating producer with properties: {}", producerProperties);
+        LOGGER.debug("Creating producer with properties: {}", producerProperties);
         return new Producer<>(new ProducerConfig(producerProperties));
     }
 
     public enum KafkaProducerType {
         SYNC("sync"), ASYNC("async");
 
-        public final String typeAsString;
+        private final String typeAsString;
 
         KafkaProducerType(String typeAsString) {
             this.typeAsString = typeAsString;
+        }
+
+        @Override
+        public String toString() {
+            return typeAsString;
         }
     }
 }

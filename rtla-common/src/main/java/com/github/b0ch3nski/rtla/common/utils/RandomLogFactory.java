@@ -49,10 +49,18 @@ public final class RandomLogFactory {
         return create(getRandomLogLevel());
     }
 
+    public static SimplifiedLog create(String hostName) {
+        return create(getRandomLogLevel(), hostName);
+    }
+
     public static SimplifiedLog create(Level level) {
+        return create(level, getRandomIpAddress());
+    }
+
+    public static SimplifiedLog create(Level level, String hostName) {
         return create(
                 level,
-                getRandomIpAddress(),
+                hostName,
                 System.currentTimeMillis(),
                 getRandomString(10, 20),
                 getRandomString(10, 20)
@@ -74,15 +82,18 @@ public final class RandomLogFactory {
         return create(amount, getRandomLogLevel(), true);
     }
 
-    public static List<SimplifiedLog> create(int amount, Level level) {
-        return create(amount, level, true);
+    public static List<SimplifiedLog> create(int amount, String hostName) {
+        return create(amount, getRandomLogLevel(), hostName, true);
     }
 
     private static List<SimplifiedLog> create(int amount, Level level, boolean random) {
-        Builder<SimplifiedLog> builder = ImmutableList.builder();
+        return create(amount, level, getRandomIpAddress(), random);
+    }
 
+    private static List<SimplifiedLog> create(int amount, Level level, String hostName, boolean random) {
+        Builder<SimplifiedLog> builder = ImmutableList.builder();
         for (int i = 0; i < amount; i++) {
-            builder.add((random) ? create(level) : createPrepared(level, i));
+            builder.add((random) ? create(level, hostName) : createPrepared(level, i));
         }
         return builder.build();
     }

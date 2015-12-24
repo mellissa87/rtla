@@ -5,10 +5,11 @@ import ch.qos.logback.core.AppenderBase;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog.SimplifiedLogBuilder;
 import com.github.b0ch3nski.rtla.common.utils.Validators;
-import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils;
-import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils.KafkaProducerType;
+import com.github.b0ch3nski.rtla.kafka.KafkaUtils;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
+
+import static com.github.b0ch3nski.rtla.kafka.KafkaUtils.KafkaProducerType.ASYNC;
 
 /**
  * @author bochen
@@ -59,7 +60,7 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
         Validators.isNotNullOrEmpty(brokers, "broker list");
         Validators.isNotNullOrEmpty(topic, "topic name");
 
-        producer = KafkaUtils.createProducer(brokers, KafkaProducerType.ASYNC, requireAcks);
+        producer = KafkaUtils.createProducer(brokers, ASYNC, requireAcks);
         super.start();
     }
 

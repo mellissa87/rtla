@@ -2,10 +2,9 @@ package com.github.b0ch3nski.rtla.kafka;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.utils.FileUtils;
-import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils;
-import com.github.b0ch3nski.rtla.kafka.utils.KafkaUtils.KafkaProducerType;
 import kafka.admin.AdminUtils;
 import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.javaapi.producer.Producer;
 import kafka.message.MessageAndMetadata;
@@ -20,7 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
+
+import static com.github.b0ch3nski.rtla.kafka.KafkaUtils.KafkaProducerType.ASYNC;
 
 /**
  * @author bochen
@@ -64,30 +65,54 @@ public final class EmbeddedKafka {
         LOGGER.debug("Created topic '{}' with {} partitions", topicName, topicPartitions);
     }
 
-    public void send(SimplifiedLog message, String topicName) {
-        if (producer == null) producer = KafkaUtils.createProducer("localhost:" + kafkaPort, KafkaProducerType.ASYNC, false);
+    public void produce(SimplifiedLog message, String topicName) {
+        if (producer == null) producer = KafkaUtils.createProducer("localhost:" + kafkaPort, ASYNC, false);
         producer.send(new KeyedMessage<>(topicName, message.getHostName(), message));
         LOGGER.debug("Sent message: {}", message);
     }
 
-    public void send(List<SimplifiedLog> messages, String topicName) {
-        messages.forEach(message -> send(message, topicName));
+    public void produce(List<SimplifiedLog> messages, String topicName) {
+        messages.forEach(message -> produce(message, topicName));
     }
 
-    public Callable<Boolean> messagesArrived(String topicName, List<SimplifiedLog> expected) {
-        ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
-        ConsumerIterator<String, SimplifiedLog> consumerIterator = KafkaUtils.getConsumerIterator(consumer, topicName);
-        List<SimplifiedLog> received = new ArrayList<>();
-
+    private Callable<List<SimplifiedLog>> createConsumerThread(ConsumerIterator<String, SimplifiedLog> iterator, int expectedMsg) {
         return () -> {
-            if (consumerIterator.hasNext()) {
-                MessageAndMetadata data = consumerIterator.next();
+            List<SimplifiedLog> received = new ArrayList<>();
+            while ((received.size() < expectedMsg) && iterator.hasNext()) {
+                MessageAndMetadata data = iterator.next();
                 received.add((SimplifiedLog) data.message());
                 LOGGER.debug("Received message: {} | From partition: {}", data.message(), data.partition());
             }
-            consumer.shutdown();
-            return received.containsAll(expected);
+            return received;
         };
+    }
+
+    private List<SimplifiedLog> getResultsFromFutures(List<Future<List<SimplifiedLog>>> futures) throws InterruptedException {
+        List<SimplifiedLog> received = new ArrayList<>();
+        for (Future<List<SimplifiedLog>> future : futures) {
+            try {
+                received.addAll(future.get());
+            } catch (CancellationException ignored) {
+            } catch (ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return received;
+    }
+
+    public List<SimplifiedLog> consume(String topicName, int topicPartitions, int expectedMsg) throws InterruptedException {
+        ConsumerConnector consumer = KafkaUtils.createConsumer(zkServer.getConnectString(), "test_group", "1");
+        List<KafkaStream<String, SimplifiedLog>> streams = KafkaUtils.getConsumerStreams(consumer, topicName, topicPartitions);
+
+        List<Callable<List<SimplifiedLog>>> tasks = new ArrayList<>();
+        streams.forEach(stream -> tasks.add(createConsumerThread(stream.iterator(), expectedMsg)));
+
+        ExecutorService executor = Executors.newFixedThreadPool(streams.size());
+        List<Future<List<SimplifiedLog>>> futures = executor.invokeAll(tasks, 5 * expectedMsg, TimeUnit.SECONDS);
+
+        List<SimplifiedLog> received = getResultsFromFutures(futures);
+        consumer.shutdown();
+        return received;
     }
 
     public boolean isTopicAvailable(String topicName) {
