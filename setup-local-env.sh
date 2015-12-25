@@ -62,8 +62,8 @@ start() {
     echo -e "OK!\n"
     sleep 10
 
-    echo "Starting 4 simulators..."
-    for i in {1..4}
+    echo "Starting 5 simulators..."
+    for i in {1..5}
     do
 	    echo -e "\nSimulator ${i}..."
         docker run --name rtla-simulator-${i} --volumes-from rtla-simulation-data-container --link kafka -e LOGDIR_NUM=${i} -e DELAY=500 -e LOOPS=1 -d bochen/rtla-simulator:1.0.0

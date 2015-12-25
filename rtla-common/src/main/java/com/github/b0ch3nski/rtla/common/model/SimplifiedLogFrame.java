@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * @author bochen
  */
-public final class SimplifiedLogFrame implements SerializableByKryo {
+public final class SimplifiedLogFrame implements SerializableByKryo, InsertableToCass {
     private final long timeStamp;
     private final String hostName;
     private final String level;
@@ -20,6 +20,10 @@ public final class SimplifiedLogFrame implements SerializableByKryo {
         this.hostName = hostName;
         this.level = level;
         this.simplifiedLog = simplifiedLog;
+    }
+
+    public SimplifiedLogFrame(byte[] simplifiedLog) {
+        this(0L, "", "", simplifiedLog);
     }
 
     public SimplifiedLogFrame(SimplifiedLog log) {
@@ -55,6 +59,11 @@ public final class SimplifiedLogFrame implements SerializableByKryo {
                 + hostName.length()
                 + level.length()
                 + getSimplifiedLogLength();
+    }
+
+    @Override
+    public String getPartitionKey() {
+        return hostName;
     }
 
     @Override

@@ -44,7 +44,7 @@ public final class EmbeddedCassandra {
             config = new CassandraConfigBuilder()
                     .withHost(EmbeddedCassandraServerHelper.getHost())
                     .withPort(EmbeddedCassandraServerHelper.getNativeTransportPort())
-                    .withBatchSize(0)
+                    .withBatchSize(32)
                     .withFlushTime(5)
                     .withTtl(3600L)
                     .build();

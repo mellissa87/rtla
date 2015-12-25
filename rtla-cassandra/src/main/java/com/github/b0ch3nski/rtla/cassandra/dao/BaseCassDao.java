@@ -4,6 +4,7 @@ import com.datastax.driver.core.*;
 import com.datastax.driver.core.BatchStatement.Type;
 import com.github.b0ch3nski.rtla.cassandra.*;
 import com.github.b0ch3nski.rtla.cassandra.CassandraSession.SessionHandler;
+import com.github.b0ch3nski.rtla.common.model.InsertableToCass;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.cache.*;
@@ -19,9 +20,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author bochen
  */
-public abstract class BaseCassDao<T> {
+public abstract class BaseCassDao<T extends InsertableToCass> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseCassDao.class);
-    private static final String CACHE_KEY_NAME = "cache";
     private final CassandraConfig config;
     private final CassandraTable table;
     private final int batchSize;
@@ -50,8 +50,8 @@ public abstract class BaseCassDao<T> {
 
                 if ((toFlush != null) && (!toFlush.isEmpty())) {
                     flushBatch(toFlush);
-                    LOGGER.debug("Flushed batch cache | Flush cause: {} | All cached buffers: {}",
-                            getRemovalCause(notification.getCause()), batchCache.size());
+                    LOGGER.debug("Flushed batch of key: {} | Flush cause: {} | All cached buffers: {}",
+                            notification.getKey(), getRemovalCause(notification.getCause()), batchCache.size());
                 }
             }
         }
@@ -110,14 +110,25 @@ public abstract class BaseCassDao<T> {
         LOGGER.trace("Saved batch of:\n{}", Joiner.on("\n").join(toFlush));
     }
 
+    public final void save(T item) {
+        String partitionKey = item.getPartitionKey();
+
+        List<T> buffer = batchCache.getIfPresent(partitionKey);
+        if (buffer == null) {
+            buffer = new ArrayList<>();
+            LOGGER.trace("No buffer for key {} found in cache, created new one", partitionKey);
+        } else {
+            LOGGER.trace("Found buffer for key {} in cache | Buffer size: {}", partitionKey, buffer.size());
+        }
+
+        buffer.add(item);
+        batchCache.put(partitionKey, buffer);
+
+        if (buffer.size() >= batchSize) batchCache.invalidate(partitionKey);
+    }
+
     public final void save(List<T> items) {
-        List<T> buffer = batchCache.getIfPresent(CACHE_KEY_NAME);
-        if (buffer == null) buffer = new ArrayList<>();
-
-        buffer.addAll(items);
-        batchCache.put(CACHE_KEY_NAME, buffer);
-
-        if (buffer.size() >= batchSize) batchCache.invalidate(CACHE_KEY_NAME);
+        items.forEach(this::save);
     }
 
     @SafeVarargs

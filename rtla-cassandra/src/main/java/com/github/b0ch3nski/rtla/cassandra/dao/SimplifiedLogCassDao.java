@@ -60,9 +60,7 @@ public class SimplifiedLogCassDao extends BaseCassDao<SimplifiedLogFrame> {
         ByteBuffer buffer = single.getBytesUnsafe(LOG);
         byte[] serialized = new byte[buffer.remaining()];
         buffer.get(serialized);
-
-        // FIXME: this is silly...
-        return new SimplifiedLogFrame(0L, null, null, serialized);
+        return new SimplifiedLogFrame(serialized);
     }
 
     private List<SimplifiedLog> getLogsListFromResultSet(ResultSet result) {
