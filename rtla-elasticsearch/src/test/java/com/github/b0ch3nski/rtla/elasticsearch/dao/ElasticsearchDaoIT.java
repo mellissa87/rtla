@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
  * @author bochen
  */
 public class ElasticsearchDaoIT {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchDaoIT.class);
     private static final String CLUSTER_NAME = "unit-tests";
 
@@ -29,10 +28,11 @@ public class ElasticsearchDaoIT {
                     .put("node.name", "embedded-es")
                     .put("path.home", path)
                     .put("path.data", path + "/data")
-                    .put("discovery.zen.ping.multicast.enabled", "false")
-                    .put("index.number_of_shards", "1")
-                    .put("index.number_of_replicas", "0")
-                    .put("http.enabled", "false")
+                    .put("discovery.zen.ping.multicast.enabled", false)
+                    .put("index.number_of_shards", 1)
+                    .put("index.number_of_replicas", 0)
+                    .put("http.enabled", false)
+                    .put("bootstrap.mlockall", true)
                     .build();
         }
 

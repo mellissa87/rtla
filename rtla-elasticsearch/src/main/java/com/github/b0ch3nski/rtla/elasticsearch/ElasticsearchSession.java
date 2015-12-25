@@ -26,6 +26,7 @@ public final class ElasticsearchSession {
                 .settings(Settings.settingsBuilder()
                                 .put("network.host", "0.0.0.0")
                                 .put("http.enabled", false)
+                                .put("bootstrap.mlockall", true)
                                 .put("path.home", FileUtils.createTmpDir("es-client"))
                                 .put("discovery.zen.ping.multicast.enabled", false)
                 )
