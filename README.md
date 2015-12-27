@@ -19,7 +19,7 @@ More information about this system can be found in
 * Docker
 * Java 8
 * Maven
-* Logback
+* Log4J / Logback
 * Kryo / Jersey
 * Apache Zookeeper
 * Apache Kafka
@@ -27,6 +27,7 @@ More information about this system can be found in
 * Apache Cassandra
 * ElasticSearch
 * Kibana
+* Grizzly / Jackson
 
 
 ### Requirements
@@ -77,6 +78,10 @@ Implements all Kafka related interfaces required to produce / consume messages.
 Logback plugin implementation that sends logs directly from Log4J interfaces to
 Kafka topic.
 
+* **rtla-rest**
+
+HTTP service that serves the data from Cassandra through REST API.
+
 * **rtla-simulator**
 
 Simple simulator that reads example logs from files; used in end-to-end testing
@@ -92,7 +97,6 @@ further to Cassandra and ElasticSearch.
 * Move to dependency injection concept (Guice vs. Spring)
 * Move out from setting TTL in ElasticSearch index properties - create new index
 each day and remove old one (get TTL out of ES responsibilities scope)
-* Simple REST service to access data in Cassandra (Jackson @ Grizzly)
 * Simple JS based web UI + Websockets (SocketIO)
 * Move configuration to Apache Zookeeper
 * Move deployment from manual Docker setup to Kubernetes

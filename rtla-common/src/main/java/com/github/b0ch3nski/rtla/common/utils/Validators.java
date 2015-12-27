@@ -16,16 +16,19 @@ public final class Validators {
 
     private Validators() { }
 
-    public static void isNotNull(Object toValidate, String varName) {
+    public static <T> T isNotNull(T toValidate, String varName) {
         Preconditions.checkArgument((toValidate != null), varName + NOT_NULL);
+        return toValidate;
     }
 
-    public static void isNotNullOrEmpty(String toValidate, String varName) {
+    public static String isNotNullOrEmpty(String toValidate, String varName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(toValidate), varName + NOT_NULL_OR_EMPTY);
+        return toValidate;
     }
 
-    public static void isGreaterThanZero(int toValidate, String varName) {
+    public static int isGreaterThanZero(int toValidate, String varName) {
         Preconditions.checkArgument(toValidate > 0, varName + GT_THAN_0);
+        return toValidate;
     }
 
     public static Predicate<SimplifiedLog> isTimestampAround(long expected) {

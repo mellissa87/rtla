@@ -29,7 +29,7 @@ public final class SerializationHandler {
 
     private SerializationHandler() { }
 
-    private static ObjectMapper createAndConfigureMapper() {
+    public static ObjectMapper createAndConfigureMapper() {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(SimplifiedLog.class, new SimplifiedLogJacksonDeserializer());

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.b0ch3nski</groupId>
+        <artifactId>rtla</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>rtla-rest</artifactId>
+    <packaging>jar</packaging>
+
+    <name>RTLA-Rest</name>
+    <description>REST API northbound interface for RTLA system</description>
+
+    <properties>
+        <main.class>com.github.b0ch3nski.rtla.rest.Starter</main.class>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.b0ch3nski</groupId>
+            <artifactId>rtla-cassandra</artifactId>
+            <version>${rtla.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-grizzly2-http</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jayway.restassured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>shade</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>${shade.plugin.version}</version>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>${shaded.jar.postfix}</shadedClassifierName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${main.class}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+        <profile>
+            <id>docker</id>
+            <activation>
+                <property>
+                    <name>dockerimg</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.spotify</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>${docker.plugin.version}</version>
+                        <configuration>
+                            <imageName>bochen/${project.artifactId}:${project.version}</imageName>
+                            <dockerDirectory>rtla-rest/docker</dockerDirectory>
+                            <resources>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>${project.build.finalName}-${shaded.jar.postfix}.jar</include>
+                                </resource>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.basedir}/config</directory>
+                                    <include>config.yml</include>
+                                    <include>logback.xml</include>
+                                </resource>
+                            </resources>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        -->
+    </profiles>
+</project>
