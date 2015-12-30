@@ -2,7 +2,7 @@ package com.github.b0ch3nski.rtla.kafka;
 
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.utils.RandomLogFactory;
-import org.hamcrest.MatcherAssert;
+import com.google.common.collect.Lists;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -51,15 +51,19 @@ public class KafkaPipeIT {
         return toReturn;
     }
 
-    private void checkLists(List<SimplifiedLog> expectedList, List<SimplifiedLog> retrievedList) {
+    private <T> void checkLists(List<T> expectedList, List<T> retrievedList) {
         LOGGER.debug("Looking for {} results | Got {}", expectedList.size(), retrievedList.size());
-        MatcherAssert.assertThat(retrievedList.size(), is(expectedList.size()));
-        MatcherAssert.assertThat(retrievedList.containsAll(expectedList), is(true));
+        assertThat(retrievedList.size(), is(expectedList.size()));
+        assertThat(retrievedList.containsAll(expectedList), is(true));
     }
 
     @Test
     public void shouldCreateTopic() {
         assertThat(KAFKA.isTopicAvailable(TOPIC), is(true));
+
+        checkLists(Lists.newArrayList(TOPIC), KafkaUtils.listTopics(KAFKA.getZkConnectString()));
+
+        assertThat(KafkaUtils.listPartitions(KAFKA.getZkConnectString(), TOPIC).size(), is(TOPIC_PART));
     }
 
     @Test

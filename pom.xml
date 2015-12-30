@@ -61,6 +61,7 @@
 
         <!-- core frameworks -->
         <cassandra-driver.version>3.0.0-beta1</cassandra-driver.version>
+        <zookeeper.version>3.5.1-alpha</zookeeper.version>
         <kafka.version>0.8.2.2</kafka.version>
         <storm.version>0.10.0</storm.version>
         <es.version>2.1.1</es.version>

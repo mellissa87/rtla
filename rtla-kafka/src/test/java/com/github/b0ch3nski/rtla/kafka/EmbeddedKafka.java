@@ -11,7 +11,6 @@ import kafka.message.MessageAndMetadata;
 import kafka.producer.KeyedMessage;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
-import kafka.utils.ZKStringSerializer$;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.curator.test.TestingServer;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ public final class EmbeddedKafka {
 
     public void start() throws Exception {
         zkServer = new TestingServer(zkPort, true);
-        zkClient = new ZkClient(zkServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
+        zkClient = KafkaUtils.createZkClient(zkServer.getConnectString());
 
         kafkaServer = new KafkaServerStartable(new KafkaConfig(getServerProperties()));
         kafkaServer.startup();
@@ -66,7 +65,7 @@ public final class EmbeddedKafka {
     }
 
     public void produce(SimplifiedLog message, String topicName) {
-        if (producer == null) producer = KafkaUtils.createProducer("localhost:" + kafkaPort, ASYNC, false);
+        if (producer == null) producer = KafkaUtils.createProducer(zkServer.getConnectString(), ASYNC, false);
         producer.send(new KeyedMessage<>(topicName, message.getHostName(), message));
         LOGGER.debug("Sent message: {}", message);
     }
@@ -117,6 +116,11 @@ public final class EmbeddedKafka {
 
     public boolean isTopicAvailable(String topicName) {
         return AdminUtils.topicExists(zkClient, topicName);
+    }
+
+    protected String getZkConnectString() {
+        if (zkServer != null) return zkServer.getConnectString();
+        else throw new IllegalStateException("Zookeeper server is not initialized");
     }
 
     public void stop() throws IOException {

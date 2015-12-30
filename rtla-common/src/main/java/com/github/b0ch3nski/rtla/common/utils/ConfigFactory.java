@@ -10,6 +10,7 @@ import java.io.Reader;
 /**
  * @author bochen
  */
+@SuppressWarnings("unchecked")
 public final class ConfigFactory {
 
     private ConfigFactory() { }
