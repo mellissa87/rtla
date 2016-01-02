@@ -66,7 +66,7 @@ start() {
     for i in {1..5}
     do
 	    echo -e "\nSimulator ${i}..."
-        docker run --name rtla-simulator-${i} --volumes-from rtla-simulation-data-container --link kafka -e LOGDIR_NUM=${i} -e DELAY=500 -e LOOPS=1 -d bochen/rtla-simulator:1.0.0
+        docker run --name rtla-simulator-${i} --volumes-from rtla-simulation-data-container --link zookeeper:zk -e LOGDIR_NUM=${i} -e DELAY=500 -e LOOPS=1 -d bochen/rtla-simulator:1.0.0
         echo "OK!"
         sleep 5
     done

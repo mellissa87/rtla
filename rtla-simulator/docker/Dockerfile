@@ -1,5 +1,5 @@
 FROM java:8-jre
-MAINTAINER bochen
+MAINTAINER Piotr Bocheński <bochenski.piotr@gmail.com>
 
 ENV SIM_HOME /opt/rtla-simulator
 RUN mkdir -p $SIM_HOME/bin \

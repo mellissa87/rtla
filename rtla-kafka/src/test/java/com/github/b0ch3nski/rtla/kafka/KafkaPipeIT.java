@@ -3,6 +3,7 @@ package com.github.b0ch3nski.rtla.kafka;
 import com.github.b0ch3nski.rtla.common.model.SimplifiedLog;
 import com.github.b0ch3nski.rtla.common.utils.RandomLogFactory;
 import com.google.common.collect.Lists;
+import org.I0Itec.zkclient.ZkClient;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -59,11 +60,11 @@ public class KafkaPipeIT {
 
     @Test
     public void shouldCreateTopic() {
+        ZkClient zkClient = KafkaUtils.createZkClient(KAFKA.getZkConnectString());
+
         assertThat(KAFKA.isTopicAvailable(TOPIC), is(true));
-
-        checkLists(Lists.newArrayList(TOPIC), KafkaUtils.listTopics(KAFKA.getZkConnectString()));
-
-        assertThat(KafkaUtils.listPartitions(KAFKA.getZkConnectString(), TOPIC).size(), is(TOPIC_PART));
+        checkLists(Lists.newArrayList(TOPIC), KafkaUtils.listTopics(zkClient));
+        assertThat(KafkaUtils.listPartitions(zkClient, TOPIC).size(), is(TOPIC_PART));
     }
 
     @Test

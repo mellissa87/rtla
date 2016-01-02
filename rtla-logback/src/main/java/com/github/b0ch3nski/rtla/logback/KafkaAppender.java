@@ -8,6 +8,7 @@ import com.github.b0ch3nski.rtla.common.utils.Validators;
 import com.github.b0ch3nski.rtla.kafka.KafkaUtils;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
+import org.I0Itec.zkclient.ZkClient;
 
 import static com.github.b0ch3nski.rtla.kafka.KafkaUtils.KafkaProducerType.ASYNC;
 
@@ -16,7 +17,7 @@ import static com.github.b0ch3nski.rtla.kafka.KafkaUtils.KafkaProducerType.ASYNC
  */
 public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
     private String hostName;
-    private String brokers;
+    private String zkAddress;
     private String topic;
     private boolean requireAcks;
     private Producer<String, SimplifiedLog> producer;
@@ -30,12 +31,12 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
         this.hostName = hostName;
     }
 
-    public String getBrokers() {
-        return brokers;
+    public String getZkAddress() {
+        return zkAddress;
     }
 
-    public void setBrokers(String brokers) {
-        this.brokers = brokers;
+    public void setZkAddress(String zkAddress) {
+        this.zkAddress = zkAddress;
     }
 
     public String getTopic() {
@@ -57,10 +58,11 @@ public final class KafkaAppender extends AppenderBase<ILoggingEvent> {
     @Override
     public void start() {
         Validators.isNotNullOrEmpty(hostName, "host name");
-        Validators.isNotNullOrEmpty(brokers, "broker list");
+        Validators.isNotNullOrEmpty(zkAddress, "Zookeeper address");
         Validators.isNotNullOrEmpty(topic, "topic name");
 
-        producer = KafkaUtils.createProducer(brokers, ASYNC, requireAcks);
+        ZkClient zkClient = KafkaUtils.createZkClient(zkAddress);
+        producer = KafkaUtils.createProducer(zkClient, ASYNC, requireAcks);
         super.start();
     }
 

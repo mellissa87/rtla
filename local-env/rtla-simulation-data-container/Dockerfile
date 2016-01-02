@@ -1,5 +1,5 @@
 FROM java:8-jre
-MAINTAINER bochen
+MAINTAINER Piotr Bocheński <bochenski.piotr@gmail.com>
 
 RUN mkdir -p /simulation-data/logs1; \
     mkdir /simulation-data/logs2; \

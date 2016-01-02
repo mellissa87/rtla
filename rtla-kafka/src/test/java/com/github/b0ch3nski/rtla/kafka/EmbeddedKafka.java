@@ -65,7 +65,9 @@ public final class EmbeddedKafka {
     }
 
     public void produce(SimplifiedLog message, String topicName) {
-        if (producer == null) producer = KafkaUtils.createProducer(zkServer.getConnectString(), ASYNC, false);
+        if (producer == null)
+            producer = KafkaUtils.createProducer(
+                    KafkaUtils.createZkClient(zkServer.getConnectString()), ASYNC, false);
         producer.send(new KeyedMessage<>(topicName, message.getHostName(), message));
         LOGGER.debug("Sent message: {}", message);
     }
