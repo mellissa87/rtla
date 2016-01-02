@@ -1,6 +1,7 @@
 package com.github.b0ch3nski.rtla.common.model;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.b0ch3nski.rtla.common.utils.Validators;
 import com.google.common.base.Preconditions;
 
@@ -53,6 +54,7 @@ public final class SimplifiedLog implements SerializableByKryo {
     }
 
     @Override
+    @JsonIgnore
     public int getObjectSizeInBytes() {
         return 9 // timestamp is long
                 + hostName.length()
