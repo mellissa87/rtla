@@ -1,6 +1,10 @@
 package com.github.b0ch3nski.rtla.rest;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.github.b0ch3nski.rtla.cassandra.CassandraConfig;
+import com.github.b0ch3nski.rtla.cassandra.CassandraConfig.CassandraConfigBuilder;
+import com.github.b0ch3nski.rtla.cassandra.dao.SimplifiedLogCassDao;
+import com.github.b0ch3nski.rtla.cassandra.dao.SimplifiedLogCassDaoFactory;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.github.b0ch3nski.rtla.common.utils.ConfigFactory;
 import com.github.b0ch3nski.rtla.common.utils.Validators;
@@ -11,6 +15,8 @@ import org.glassfish.grizzly.http.CompressionConfig.CompressionMode;
 import org.glassfish.grizzly.http.server.*;
 import org.glassfish.grizzly.ssl.SSLContextConfigurator;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
+import org.glassfish.hk2.api.TypeLiteral;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
@@ -41,20 +47,36 @@ public final class Starter {
         Validators.isNotNull(config, "config");
         this.config = config;
 
-        createListener();
+        CassandraConfig cassandraConfig = new CassandraConfigBuilder()
+                .withHost(config.getCassandraHost())
+                .withPort(config.getCassandraPort())
+                .build();
         ResourceConfig resourceConfig = new ResourceConfig();
+
+        createListener();
+        createDaos(cassandraConfig, resourceConfig);
         configureSerialization(resourceConfig);
         configureHttpServer(createHandlers(resourceConfig));
     }
 
     private void start() throws IOException {
-        LOGGER.debug("Starting REST service with config = {}", config);
+        LOGGER.info("Starting REST service with config = {}", config);
         SERVER.start();
     }
 
     private void createListener() {
         NetworkListener listener = new NetworkListener("mainListener", config.getServerHost(), config.getServerPort());
         SERVER.addListener(listener);
+    }
+
+    private void createDaos(CassandraConfig cassandraConfig, ResourceConfig resourceConfig) {
+        Map<String, SimplifiedLogCassDao> daos = SimplifiedLogCassDaoFactory.createAllDaos(cassandraConfig);
+        resourceConfig.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(daos).to(new TypeLiteral<Map<String, SimplifiedLogCassDao>>() {});
+            }
+        });
     }
 
     private void configureSerialization(ResourceConfig resourceConfig) {
@@ -68,7 +90,7 @@ public final class Starter {
         CLStaticHttpHandler webHandler = new CLStaticHttpHandler(getClass().getClassLoader(), "webapp/");
         handlers.put(webHandler, "/");
 
-        config.packages(getClass().getPackage() + ".resource");
+        config.packages(getClass().getPackage() + ".resources");
         HttpHandler apiHandler = ContainerFactory.createContainer(HttpHandler.class, config);
         handlers.put(apiHandler, "/api");
         return handlers;
@@ -97,16 +119,16 @@ public final class Starter {
     }
 
     private void enableCompression(NetworkListener listener) {
-        CompressionConfig compCfg = listener.getCompressionConfig();
-        compCfg.setCompressionMode(CompressionMode.ON);
-        compCfg.setCompressionMinSize(1);
-        compCfg.setCompressableMimeTypes("text/plain", "text/html", "text/css", "text/xml", "application/xhtml+xml",
-                "application/json", "application/javascript", "application/xml");
+        CompressionConfig compressionConfig = listener.getCompressionConfig();
+        compressionConfig.setCompressionMode(CompressionMode.ON);
+        compressionConfig.setCompressionMinSize(1);
+        compressionConfig.setCompressableMimeTypes("text/plain", "text/html", "text/css", "text/xml",
+                "application/xhtml+xml", "application/json", "application/javascript", "application/xml");
     }
 
     private void shutdown() {
         SERVER.shutdown();
-        LOGGER.debug("REST service has been shut down!");
+        LOGGER.info("REST service has been shut down!");
     }
 
     public static void main(String... args) throws IOException, InterruptedException {

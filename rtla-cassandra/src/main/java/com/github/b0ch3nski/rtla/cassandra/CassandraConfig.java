@@ -78,7 +78,7 @@ public final class CassandraConfig {
         private int port;
         private int batchSize;
         private int flushTime;
-        private long ttl;
+        private long ttl = 60;
 
         public CassandraConfigBuilder fromStormConf(Map stormConf) {
             Map config = (Map) stormConf.get("cassandra.config");
