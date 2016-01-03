@@ -8,7 +8,7 @@ import com.github.b0ch3nski.rtla.cassandra.dao.SimplifiedLogCassDaoFactory;
 import com.github.b0ch3nski.rtla.common.serialization.SerializationHandler;
 import com.github.b0ch3nski.rtla.common.utils.ConfigFactory;
 import com.github.b0ch3nski.rtla.common.utils.Validators;
-import com.github.b0ch3nski.rtla.rest.utils.RestConfig;
+import com.github.b0ch3nski.rtla.rest.utils.*;
 import com.google.common.base.Preconditions;
 import org.glassfish.grizzly.http.CompressionConfig;
 import org.glassfish.grizzly.http.CompressionConfig.CompressionMode;
@@ -55,6 +55,7 @@ public final class Starter {
 
         createListener();
         createDaos(cassandraConfig, resourceConfig);
+        configureErrorHandling(resourceConfig);
         configureSerialization(resourceConfig);
         configureHttpServer(createHandlers(resourceConfig));
     }
@@ -77,6 +78,11 @@ public final class Starter {
                 bind(daos).to(new TypeLiteral<Map<String, SimplifiedLogCassDao>>() {});
             }
         });
+    }
+
+    private void configureErrorHandling(ResourceConfig resourceConfig) {
+        resourceConfig.register(GenericExceptionMapper.class);
+        resourceConfig.register(RequiredParamFilter.class);
     }
 
     private void configureSerialization(ResourceConfig resourceConfig) {
