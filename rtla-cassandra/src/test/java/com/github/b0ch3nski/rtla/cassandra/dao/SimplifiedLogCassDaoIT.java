@@ -22,12 +22,11 @@ import static org.hamcrest.core.Is.is;
  * @author bochen
  */
 public abstract class SimplifiedLogCassDaoIT extends CassandraDaoIT {
-
+    public static final long TIME_MIN = TIME1 - 10000L;
+    public static final long TIME_MAX = TIME1 + 10000L;
     private static final Logger LOGGER = LoggerFactory.getLogger(SimplifiedLogCassDaoIT.class);
     private static final int MSG_AMOUNT = 64;
     private static final int TIMEOUT = MSG_AMOUNT * 2;
-    private static final long TIME_MIN = TIME1 - 10000L;
-    private static final long TIME_MAX = TIME1 + 10000L;
     private static SimplifiedLogCassDao dao;
     private Map<String, List<SimplifiedLog>> expectedLists;
 
@@ -58,7 +57,7 @@ public abstract class SimplifiedLogCassDaoIT extends CassandraDaoIT {
                 .until(() -> (dao.countAllElements() == expected));
     }
 
-    private void checkLists(String expectedListName, List<SimplifiedLog> retrievedList) {
+    public void checkLists(String expectedListName, List<SimplifiedLog> retrievedList) {
         List<SimplifiedLog> expectedList = expectedLists.get(expectedListName);
 
         LOGGER.debug("Looking for {} results [{}] | Got {}", expectedList.size(), expectedListName, retrievedList.size());

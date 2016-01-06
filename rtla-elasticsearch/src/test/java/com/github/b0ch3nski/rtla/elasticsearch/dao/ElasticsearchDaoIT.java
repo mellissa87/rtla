@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author bochen
  */
-public class ElasticsearchDaoIT {
+public abstract class ElasticsearchDaoIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchDaoIT.class);
     private static final String CLUSTER_NAME = "unit-tests";
 

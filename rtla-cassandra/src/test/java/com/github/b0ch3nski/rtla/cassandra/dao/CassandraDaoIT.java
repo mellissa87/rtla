@@ -7,7 +7,7 @@ import org.junit.rules.ExternalResource;
 /**
  * @author bochen
  */
-public class CassandraDaoIT {
+public abstract class CassandraDaoIT {
 
     @ClassRule
     public static final ExternalResource RESOURCE = new ExternalResource() {

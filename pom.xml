@@ -58,6 +58,7 @@
         <failsafe.plugin.version>2.19</failsafe.plugin.version>
         <shade.plugin.version>2.4.2</shade.plugin.version>
         <docker.plugin.version>0.3.8</docker.plugin.version>
+        <jar.plugin.version>2.6</jar.plugin.version>
 
         <!-- core frameworks -->
         <cassandra-driver.version>3.0.0-beta1</cassandra-driver.version>
