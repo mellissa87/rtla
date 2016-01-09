@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.github.b0ch3nski.rtla.cassandra.CassandraTable.INFO;
 import static com.github.b0ch3nski.rtla.common.utils.RandomLogFactory.*;
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -26,12 +27,11 @@ import static com.jayway.restassured.http.ContentType.JSON;
 /**
  * @author bochen
  */
-public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
+public final class LogsResourceIT extends SimplifiedLogCassDaoIT {
+    private static final CassandraTable TABLE = INFO;
     private static final String HOST = "localhost";
     private static final int PORT = 9876;
-    private static final String HOST_PATH = "hostName";
-    private static final String QUERY_PATH = "query";
-    private static final String URL = "http://" + HOST + ":" + PORT + "/api/logs/{" + HOST_PATH + "}";
+    private static final String URL = "http://" + HOST + ":" + PORT + "/api/logs/query";
 
     @ClassRule
     public static final ExternalResource REST_RESOURCE = new ExternalResource() {
@@ -59,20 +59,19 @@ public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
         }
     };
 
-    protected LogsResourceIT(CassandraTable table) {
-        super(SimplifiedLogCassDaoFactory.createDaoForLevel(getConfig(), table));
+    public LogsResourceIT() {
+        super(SimplifiedLogCassDaoFactory.createDaoForLevel(getConfig(), TABLE));
 
         config = RestAssuredConfig.config().objectMapperConfig(
                 new ObjectMapperConfig().jackson2ObjectMapperFactory(
                         (cls, charset) -> SerializationHandler.createAndConfigureMapper()));
     }
 
-    private List<SimplifiedLog> retrieveListFromHttp(RequestSpecification requestSpec, int pathParams) {
-        String url = (pathParams == 2) ? (URL + "/{" + QUERY_PATH + "}") : URL;
-
+    private List<SimplifiedLog> retrieveListFromHttp(RequestSpecification requestSpec) {
         // @formatter:off
         Response response = given()
-                    .pathParam(HOST_PATH, HOST1)
+                    .queryParam("hostName", HOST1)
+                    .queryParam("level", TABLE.name())
                     .spec(requestSpec)
                     .log().all()
                 .expect()
@@ -80,7 +79,7 @@ public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
                     .contentType(JSON)
                     .log().ifError()
                 .when()
-                    .get(url);
+                    .get(URL);
         // @formatter:on
 
         return Arrays.asList(response.getBody().as(SimplifiedLog[].class));
@@ -90,7 +89,7 @@ public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
     public void shouldRetrieveLogsByHost() {
         RequestSpecification requestSpec = new RequestSpecBuilder().build();
 
-        checkLists("host", retrieveListFromHttp(requestSpec, 1));
+        checkLists("host", retrieveListFromHttp(requestSpec));
     }
 
     @Override
@@ -98,10 +97,9 @@ public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
         RequestSpecification requestSpec = new RequestSpecBuilder()
                 .addQueryParam("startTime", TIME_MIN)
                 .addQueryParam("stopTime", TIME_MAX)
-                .addPathParam(QUERY_PATH, "getByTime")
                 .build();
 
-        checkLists("time", retrieveListFromHttp(requestSpec, 2));
+        checkLists("time", retrieveListFromHttp(requestSpec));
     }
 
     @Override
@@ -110,10 +108,9 @@ public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
                 .addQueryParam("startTime", TIME_MIN)
                 .addQueryParam("stopTime", TIME_MAX)
                 .addQueryParam("loggerName", LOGGER1)
-                .addPathParam(QUERY_PATH, "getByLogger")
                 .build();
 
-        checkLists("logger", retrieveListFromHttp(requestSpec, 2));
+        checkLists("logger", retrieveListFromHttp(requestSpec));
     }
 
     @Override
@@ -122,10 +119,9 @@ public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
                 .addQueryParam("startTime", TIME_MIN)
                 .addQueryParam("stopTime", TIME_MAX)
                 .addQueryParam("threadName", THREAD1)
-                .addPathParam(QUERY_PATH, "getByThread")
                 .build();
 
-        checkLists("thread", retrieveListFromHttp(requestSpec, 2));
+        checkLists("thread", retrieveListFromHttp(requestSpec));
     }
 
     @Override
@@ -135,9 +131,8 @@ public abstract class LogsResourceIT extends SimplifiedLogCassDaoIT {
                 .addQueryParam("stopTime", TIME_MAX)
                 .addQueryParam("loggerName", LOGGER1)
                 .addQueryParam("threadName", THREAD1)
-                .addPathParam(QUERY_PATH, "getByLoggerAndThread")
                 .build();
 
-        checkLists("logger_thread", retrieveListFromHttp(requestSpec, 2));
+        checkLists("logger_thread", retrieveListFromHttp(requestSpec));
     }
 }
