@@ -66,12 +66,12 @@ start() {
     sleep 20
 
     echo "Starting REST service..."
-    docker run --name rtla-rest --link cassandra -d bochen/rtla-rest:1.0.0
+    docker run --name rtla-rest --link cassandra -p 9090:9090 -d bochen/rtla-rest:1.0.0
     echo -e "OK!\n"
     sleep 10
 
-    echo "Starting 5 simulators..."
-    for i in {1..5}
+    echo "Starting 4 simulators..."
+    for i in {1..4}
     do
 	    echo -e "\nSimulator ${i}..."
         docker run --name rtla-simulator-${i} --volumes-from rtla-simulation-data-container --link zookeeper:zk -e LOGDIR_NUM=${i} -e DELAY=${SIM_DELAY} -e LOOPS=${SIM_LOOPS} -d bochen/rtla-simulator:1.0.0

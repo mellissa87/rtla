@@ -1,7 +1,7 @@
-serverHost: localhost
+serverHost: 0.0.0.0
 serverPort: 9090
 
-isSSLEnabled: true
+isSSLEnabled: false
 sslPassword: ssltest
 
 cassandraHost: cassandra
