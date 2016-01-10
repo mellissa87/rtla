@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SIM_DELAY=500
+SIM_LOOPS=1
+
 build() {
     echo "Building and testing main RTLA packages..."
     mvn clean install -P shade -D dockerimg
@@ -60,13 +63,18 @@ start() {
     echo "Importing Storm topology..."
     storm jar rtla-storm/target/rtla-storm-1.0.0.jar org.apache.storm.flux.Flux --remote rtla-storm/config/logs-topology.yaml -c nimbus.host=${NIMBUS_IP} -c nimbus.thrift.port=6627
     echo -e "OK!\n"
+    sleep 20
+
+    echo "Starting REST service..."
+    docker run --name rtla-rest --link cassandra -d bochen/rtla-rest:1.0.0
+    echo -e "OK!\n"
     sleep 10
 
     echo "Starting 5 simulators..."
     for i in {1..5}
     do
 	    echo -e "\nSimulator ${i}..."
-        docker run --name rtla-simulator-${i} --volumes-from rtla-simulation-data-container --link zookeeper:zk -e LOGDIR_NUM=${i} -e DELAY=500 -e LOOPS=1 -d bochen/rtla-simulator:1.0.0
+        docker run --name rtla-simulator-${i} --volumes-from rtla-simulation-data-container --link zookeeper:zk -e LOGDIR_NUM=${i} -e DELAY=${SIM_DELAY} -e LOOPS=${SIM_LOOPS} -d bochen/rtla-simulator:1.0.0
         echo "OK!"
         sleep 5
     done

@@ -4,6 +4,5 @@ serverPort: 9090
 isSSLEnabled: true
 sslPassword: ssltest
 
-#cassandraHost: cassandra
-cassandraHost: 192.168.99.100
+cassandraHost: cassandra
 cassandraPort: 9042

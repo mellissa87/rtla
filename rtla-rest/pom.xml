@@ -115,7 +115,6 @@
             </build>
         </profile>
 
-        <!--
         <profile>
             <id>docker</id>
             <activation>
@@ -143,7 +142,6 @@
                                     <targetPath>/</targetPath>
                                     <directory>${project.basedir}/config</directory>
                                     <include>config.yml</include>
-                                    <include>logback.xml</include>
                                 </resource>
                             </resources>
                         </configuration>
@@ -159,6 +157,5 @@
                 </plugins>
             </build>
         </profile>
-        -->
     </profiles>
 </project>

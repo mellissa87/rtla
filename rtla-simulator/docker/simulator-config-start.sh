@@ -1,10 +1,8 @@
 #!/bin/bash
 
-host=`hostname -i`
-config="${SIM_HOME}/conf/config.yml"
-logback="${SIM_HOME}/conf/logback.xml"
-
-cd "${SIM_HOME}"
+host=$(hostname -i)
+config="conf/config.yml"
+logback="conf/logback.xml"
 
 sed -i -e "s/testhost/${host}/" "${logback}"
 
