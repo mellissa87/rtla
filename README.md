@@ -3,23 +3,20 @@
 
 
 ### Introduction
-Written as a college thesis :)
+Written as a college thesis project :)
 
 The main goal of this project is to create real-time, distributed, scalable and
 fault tolerant logging solution. It should be also easy to adapt to current
-software solutions (Log4J interface). Logs should be available instantly, with
+software solutions (LOG4J interface). Logs should be available instantly, with
 up to 7 days of history (with full text search - 3 days). Taking flexibility
 into consideration, system cost vs. features needs to be balanced.
-
-More information about this system can be found in
-[rtla-thesis](https://github.com/b0ch3nski/rtla-thesis) repository.
 
 
 ### Technologies currently used
 * Docker
 * Java 8
 * Maven
-* Log4J / Logback
+* LOG4J + Logback
 * Kryo / Jersey
 * Apache Zookeeper
 * Apache Kafka
@@ -27,7 +24,7 @@ More information about this system can be found in
 * Apache Cassandra
 * ElasticSearch
 * Kibana
-* Grizzly / Jackson
+* Jackson @ Grizzly
 
 
 ### Requirements
@@ -75,12 +72,12 @@ Implements all Kafka related interfaces required to produce / consume messages.
 
 * **rtla-logback**
 
-Logback plugin implementation that sends logs directly from Log4J interfaces to
+Logback plugin implementation that sends logs directly from LOG4J interfaces to
 Kafka topic.
 
 * **rtla-rest**
 
-HTTP service that serves the data from Cassandra through REST API.
+HTTP(S) service that serves the data from Cassandra through REST API.
 
 * **rtla-simulator**
 
@@ -97,7 +94,7 @@ further to Cassandra and ElasticSearch.
 * Move to dependency injection concept (Guice vs. Spring)
 * Move out from setting TTL in ElasticSearch index properties - create new index
 each day and remove old one (get TTL out of ES responsibilities scope)
-* Simple JS based web UI + Websockets (SocketIO)
+* Simple JS based web UI + Websockets
 * Move configuration to Apache Zookeeper
-* Move deployment from manual Docker setup to Kubernetes
+* Move deployment from manual Docker setup to (Mesos || Kubernetes)
 * Stop logs loneliness - gather metrics too :)
